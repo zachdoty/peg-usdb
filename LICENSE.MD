@@ -1,0 +1,1 @@
+This code is copyright PEG Foundation, all rights reserved. This code may only be used for stabletokens where the PEG Network Token (0x8ae56a6850a7cbeac3c3ab2cb311e7620167eac8) is the governance token and where stability fees are paid to a relay between the stabletoken and PEG:USD.

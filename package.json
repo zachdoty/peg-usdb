@@ -1,0 +1,22 @@
+{
+  "name": "liquidre-contract",
+  "version": "1.0.0",
+  "dependencies": {
+    "@drizzle-utils/core": "^0.3.1-alpha.0",
+    "@drizzle-utils/get-web3": "^0.2.2-alpha.0",
+    "ganache-cli": "^6.4.4",
+    "mocha": "^5.2.0",
+    "solc": "^0.4.23",
+    "stringstream": "0.0.6",
+    "truffle-hdwallet-provider": "^1.0.6",
+    "web3": "1.0.0-beta.33"
+  },
+  "scripts": {
+    "compile": "rm -rf solcbuild && rm -rf abi && node compile.js",
+    "deploy": "npm run compile && node deploy"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "moment": "^2.18.1"
+  }
+}

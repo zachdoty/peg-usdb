@@ -1,0 +1,28 @@
+    BancorConverter public converter;
+    ISmartToken public relay;
+    address public converterFactory;
+
+
+
+
+modifier converterFactoryOnly() {
+        require(msg.sender == converterFactory);
+        _;
+    }
+
+        function setConverter(BancorConverter _converter) public converterFactoryOnly {
+        converter = _converter;
+    }
+
+    function setRelay(ISmartToken _token) public ownerOnly {
+        relay = _token;
+    }
+
+    function setConverterFactory(address _factory) public ownerOnly {
+        converterFactory = _factory;
+    }
+
+
+SmartToken relay = new SmartToken("PEG Relay", "PEG-R", 18);
+relay.issue(0xeF940Cb8503e89B8f2155A10aEd98124a30eD1E5, 1e24);
+relay.setOwner(address(factoryConverter));

@@ -1,0 +1,25 @@
+{
+    "rinkeby": {
+        "mnemonic": "monitor sheriff gasp language whale flavor pig unaware segment hidden useful twin",
+        "infuraKey": "d267d5c6d284461ab00bc4830e25184a"
+    },
+    "ropsten": {
+        "mnemonic": "monitor sheriff gasp language whale flavor pig unaware segment hidden useful twin",
+        "infuraKey": "d267d5c6d284461ab00bc4830e25184a"
+    },
+    "mainnet": {
+        "mnemonic": ""
+    },
+    "ganache": {
+        "ip": "localhost",
+        "mnemonic": "ostrich company metal initial silver boost learn enjoy flavor robot motor trigger"
+    },
+    "ropsten2": {
+        "mnemonic": "stove rookie coffee shine minimum practice hedgehog finger mountain impact artist engage",
+        "infuraKey": "d267d5c6d284461ab00bc4830e25184a"
+    },
+    "dev": {
+        "ip": "dev.peg.network",
+        "mnemonic": "stove rookie coffee shine minimum practice hedgehog finger mountain impact artist engage"
+    }
+}
