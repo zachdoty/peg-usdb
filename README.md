@@ -1,410 +1,374 @@
 # PEG Documentation
 
 ## PegLogic.sol
-### actualBalance() public view
-Inputs: vault, borrower
-Returns: Actual balance scaled from raw balance
-    balanceRawToActual(rawBalanceOf(borrower))
+### Functions
+```typescript
+collateralValue(IVault _vault, address _borrower) public view validate(_vault, _borrower) returns(uint)
+// Public view: Returns value of borrower's collateral
+```
 
-### collateralValue() public view 
-Inputs: vault, borrower 
-Returns: Value of borrower's collateral
-    actualBalance() * oracleValue()
+```typescript
+liquidationPrice(IVault _vault, address _borrower) public view validate(_vault, _borrower) returns(uint)
+// Public view: Price at which borrower's debt may be liquidated
+```
 
-### liquidationPrice() public view
-Inputs: vault, borrower
-Returns: Price at which borrower's debt may be liquidated
-    actualBalance() * liquidationRatio()
+```typescript
+totalCredit(IVault _vault, address _borrower) public view validate(_vault, _borrower) returns (int256)
+// Public view: Total amount of credit based on balance value * maximum borrow rate
+```
 
-### totalCredit() public view
-Inputs: vault, borrower
-Returns: Total amount of credit based on balance value * maximum borrow rate
-    collateralValue() * maxBorrowLTV()
+```typescript
+availableCredit(IVault _vault, address _borrower) public view returns (int256)
+// Public view: returns credit available for borrowing
+```
 
-### actualDebt() public view
-Inputs: vault, borrower
-Returns: Actual scaled debt of borrower
-    debtRawToActual(rawDebt(borrower))
+```typescript
+minSafeBalance(IVault _vault, address _borrower) public view validate(_vault, _borrower) returns (uint256)
+// Public view: Amount of collateral required to stay above maxBorrowLTV()
+```
 
-### availableCredit() public view
-Inputs: vault, borrower
-Returns: Credit available for borrowing
-    totalCredit() - actualDebt()
+```typescript
+minBalance(IVault _vault, address _borrower) public view validate(_vault, _borrower) returns (uint256)
+// Public view: returns minimum collateral which will prevent the debt from being liquidated
+```
 
-### minSafeCollateral() public view 
-Inputs: vault, borrower
-Returns: Amount of collateral required to stay above maxBorrowLTV()
-    actualDebt() / oracleValue() / maxBorrowLTV()
+```typescript
+excessCollateral(IVault _vault, address _borrower) public view returns (int256)
+// Public view: returns amount of collateral able to be withdrawn while keeping debt safe
+```
 
-### minLiquidationCollateral() public view
-Inputs: vault, borrower
-Returns: Minimum collateral which will prevent the debt from being liquidated
-    actualDebt() / oracleValue() / liquidationRatio()
+```typescript
+isInsolvent(IVault _vault, address _borrower) public view returns (bool)
+// Public view: returns boolean, true if debt can be liquidated, false if debt is secure
+```
 
-### excessCollateral() public view
-Inputs: vault, borrower
-Returns: Amount of collateral able to be withdrawn while keeping debt safe
-    actualBalance()) - minSafeCollateral()
+```typescript
+totalActualDebt(IVault _vault) public view returns(uint)
+// Public view: Returns total amount of debt in the entire vault
+```
 
-### isInsolvent() public view 
-Inputs: vault, borrower
-Returns: Boolean, true if debt can be liquidated, false if debt is secure
-    actualBalance() < minLiquidationCollateral()
+```typescript
+mintableAmount(IVault _vault) public view returns(uint)
+// Public view: returns difference between the stable token's total supply and total debt
+```
 
-### totalActualDebt() public view
-Inputs: vault
-Returns: Total amount of debt in the entire vault
-    debtRawToActual(rawTotalDebt())
+```typescript
+ratioVaultABorrowed() public view returns(uint256)
+// Public view: Returns the ratio of total debt in vault B to the total balance of vault A
+```
 
-### ratioVaultABorrowed() public view
-Inputs: none
-Returns: The ratio of total debt in vault B to the total balance of vault A
-    vaultB().debtRawToActual(vaultB().rawTotalDebt()) / actualTotalBalance(vaultA())
+```typescript
+actualTotalBalance(IVault _vault) public view returns(uint256)
+// Public view: Returns total collateral balance for a vault
+```
 
-### actualTotalBalance() public view
-Inputs: vault
-Returns: Total collateral balance for a vault
-    balanceRawToActual(rawTotalBalance())
+```typescript
+actualDebt(IVault _vault, address _address) public view returns(uint256)
+// Public view: Returns actual scaled debt of borrower
+```
 
-### mintableAmount() public view
-Inputs: vault
-Returns: Difference between the stable token's total supply and total debt
-    totalActualDebt() - stableToken().totalSupply()
+```typescript
+actualBalance(IVault _vault, address _address) public view returns(uint256)
+// Public view: Returns actual balance scaled from raw balance
+```
 
-### deposit() public
-Inputs: vault, amount
-Returns:
-Deposits the collateral token of vault on behalf of the sender
-    Calls adjustCollateralBorrowingRate()
+```typescript
+adjustDebtStabilityFee(IVault _vault, bool _increaseStabilityFee) public authOnly
+// Internal: Increases or decreases debt scaling (interest) rate
+```
 
-### withdraw() public
-Inputs: vault, address, amount
-Returns:
-Withdraws collateral only if the vault has excess collateral
-    Calls adjustCollateralBorrowingRate()
+```typescript
+adjustCollateralBorrowingRate() public authOnly
+// Internal: Adjusts interest rate based on ratio of (A?) vault collateral borrowed
+```
 
-### borrow() public
-Inputs: vault, amount
-Returns:
-Checks for availableCredit() and borrows the requested amount of tokens from the specified vault.
-If this is on the (B?) vault it withdraws them from the collateral in the (A?) vault.
-    Calls adjustCollateralBorrowingRate()
+```typescript
+processStabilityFee(IVault _vault) public
+// Public: Checks mintableAmount() and mints appropriate number of tokens to fee recipient
+```
 
-### repay() public
-Inputs: vault, borrower, amount
-Returns: 
-Transfers or destroys tokens from user and repays borrower's corresponding debt
-    Calls adjustCollateralBorrowingRate()
+```typescript
+setCollateralBorrowingRate(int newRate) internal
+// Internal: Sets debt and balance scaling rate for both vaults (A/B)
+```
 
-### repayAll() public
-Inputs: vault, borrower
-Returns: 
-Repays a borrower's entire debt. Wrapper for repay()
+```typescript
+mintStabletoken(address _to, uint _amount) internal
+// Internal: Issues stable tokens to address
+```
 
-### liquidate() public
-Inputs: vault, borrower
-Returns: 
-Todo: Update once logic is finished
-Purchases a borrower's collateral by repaying debt.
-    Calls adjustCollateralBorrowingRate()
+```typescript
+getCollateralToken(IVault _vault) public view returns(IERC20Token)
+// Returns the collateral token associated with a vault
+```
 
-### adjustDebtStabilityFee()
-Inputs: vault, increaseStabilityFee
-Returns: 
-Increases or decreases debt scaling (interest) rate
-
-### adjustCollateralBorrowingRate()
-Inputs: 
-Returns: 
-Adjusts interest rate based on ratio of (A?) vault collateral borrowed
-
-### setCollateralBorrowingRate(int newRate)
-Inputs: 
-Returns: 
-Sets debt and balance scaling rate for both vaults (A/B)
-
-### mintStabletoken()
-Inputs: to, amount
-Returns: 
-Issues stable tokens to address
-
-### processStabilityFee(IVault _vault) public
-Inputs: vault
-Returns:
-Checks mintableAmount() and mints appropriate number of tokens to fee recipient
-    mintStabletoken(registry.addressOf(ContractIds.FEE_RECIPIENT), mintableAmount(_vault));
+```typescript
+getDebtToken(IVault _vault) public view returns(IStableToken)
+// Returns the debt/stable token associated with a vault
+```
 
 ## Vault.sol
-
+### Variables
 ```typescript
-function rawTotalBalance() public view returns (uint256);
+uint256 public rawTotalBalance;
 // Total vault balance, unscaled
-```
 
-```typescript
-rawTotalDebt
+uint256 public rawTotalDebt;
 // Total vault debt, unscaled
-```
 
-```typescript
-collateralBorrowedRatio
+uint256 public collateralBorrowedRatio;
 // Ratio of collateral deposited into Vault A versus quantity borrowed through Vault B
-```
 
-```typescript
-amountMinted
+uint256 public amountMinted;
 // Represents number of stabletokens minted for Vault A
-```
 
-```typescript
-debtScalePrevious = 1e18
-// Todo
-```
+uint256 public debtScalePrevious = 1e18;
+// Debt scaling factor when last adjusted.
 
-```typescript
-debtScaleTimestamp = now
-// Todo (time debt starts scaling...?)
-```
+uint256 public debtScaleTimestamp = now;
+// Timestamp of last debt scaling rate adjustment
 
-```typescript
-debtScaleRate
+int256 public debtScaleRate;
 // Scales debt over time, interest payments
-```
 
-```typescript
-balScalePrevious = 1e18
-// Todo
-```
+uint256 public balScalePrevious = 1e18;
+// Balance scaling factor when last adjusted.
 
-```typescript
-balScaleTimestamp = now
-// Todo
-```
+uint256 public balScaleTimestamp = now;
+// Timestamp of last balance scaling rate adjustment
 
-```typescript
-balScaleRate
+int256 public balScaleRate;
 // Scales balance over time, interest earnings
-```
 
-```typescript
-liquidationRatio = 850000
+uint32 public liquidationRatio = 850000;
 // If individual debt value exceeds this value (85%) vs collateral allow liquidation
-```
 
-```typescript
-maxBorrowLTV = 500000
+uint32 public maxBorrowLTV = 500000;
 // Borrowing limit against collateral value (50%)
-```
 
-```typescript
-borrowingEnabled = true
+bool public borrowingEnabled = true;
 // Can users borrow against their collateral
-```
 
-```typescript
-biddingTime = 10800
+uint public biddingTime = 10800;
 // Auction time limit: 3 hours
 ```
 
+### Functions
 ```typescript
-setBorrowingEnabled(bool)
+setBorrowingEnabled(bool _enabled) public authOnly
 // Authorized only function, enables/disables borrowingEnabled
 ```
 
 ```typescript
-create(address)
+create(address _borrower) public authOnly
 // Helper used to validate, ensures a user has a vault entry
 ```
 
 ```typescript
-setCollateralBorrowedRatio(uint)
+setCollateralBorrowedRatio(uint _newRatio) public authOnly
 // Authorized/internal: Track the ratio of collateral borrowed from Vault A to Vault B
 ```
 
 ```typescript
-setAmountMinted(uint)
+setAmountMinted(uint _amountMinted) public authOnly
 // Authorized/internal: Update the amount of stabletokens minted from vault A
 ```
 
 ```typescript
-setLiquidationRatio(uint32 _liquidationRatio) public authOnly {
+setLiquidationRatio(uint32 _liquidationRatio) public authOnly
 // Authorized/internal, allows setting of the liquidation ratio
 ```
 
 ```typescript
-setMaxBorrowLTV(uint32)
+setMaxBorrowLTV(uint32 _maxBorrowLTV) public authOnly
 // Internal, set maximum borrowing allowance
 ```
 
 ```typescript
-setDebtScalingRate(int256 _debtScalingRate) public authOnly {
+setDebtScalingRate(int256 _debtScalingRate) public authOnly
 // Internal: Updates debt scaling rate
 ```
 
 ```typescript
-setBalanceScalingRate(int256 _balanceScalingRate) public authOnly {
+setBalanceScalingRate(int256 _balanceScalingRate) public authOnly
 // Internal: Updates balance scaling rate
 ```
 
 ```typescript
-setBiddingTime(uint _biddingTime) public authOnly {
+setBiddingTime(uint _biddingTime) public authOnly
 // Internal: Set auction bidding length
 ```
 
 ```typescript
-setRawTotalBalance(uint _rawTotalBalance) public authOnly {
+setRawTotalBalance(uint _rawTotalBalance) public authOnly
 // Internal: Updates raw total balance in vault
 ```
 
 ```typescript
-setRawTotalDebt(uint _rawTotalDebt) public authOnly {
+setRawTotalDebt(uint _rawTotalDebt) public authOnly
 // Internal: Updates raw total debt in vault
 ```
 
 ```typescript
-setRawBalanceOf(address _borrower, uint _rawBalance) public authOnly {
+setRawBalanceOf(address _borrower, uint _rawBalance) public authOnly
 // Internal: Sets a borrower's raw balance
 ```
 
 ```typescript
-setRawDebt(address _borrower, uint _rawDebt) public authOnly {
+setRawDebt(address _borrower, uint _rawDebt) public authOnly
 // Internal: Sets a borrower's raw debt
 ```
 
 ```typescript
-setTotalBorrowed(address _borrower, uint _totalBorrowed) public authOnly {
+setTotalBorrowed(address _borrower, uint _totalBorrowed) public authOnly
 // Internal: Set borrower's total amount borrowed
 ```
 
 ```typescript
-debtScalingFactor() public view returns (uint) {
+debtScalingFactor() public view returns (uint)
 // Returns debt scaling factor
 ```
 
 ```typescript
-balanceScalingFactor() public view returns (uint) {
+balanceScalingFactor() public view returns (uint)
 // Returns balance scaling factor
 ```
 
 ```typescript
-debtRawToActual(uint256 _raw) public view returns(uint256) {
+debtRawToActual(uint256 _raw) public view returns(uint256)
 // Converts a raw debt into actual scaled debt
 ```
 
 ```typescript
-debtActualToRaw(uint256 _actual) public view returns(uint256) {
+debtActualToRaw(uint256 _actual) public view returns(uint256)
 // Converts an actual debt into raw debt
 ```
 
 ```typescript
-balanceRawToActual(uint256 _raw) public view returns(uint256) {
+balanceRawToActual(uint256 _raw) public view returns(uint256)
 // Converts a raw balance into actual scaled balance
 ```
 
 ```typescript
-balanceActualToRaw(uint256 _actual) public view returns(uint256) {
+balanceActualToRaw(uint256 _actual) public view returns(uint256)
 // Converts an actual balance into raw balance
 ```
 
 ```typescript
-getVaults() public view returns (address[]) {
-// Todo: Clarify - Returns vault addresses
+getVaults() public view returns (address[])
+// Returns a list of all depositors in this vault
 ```
 
 ```typescript
-transferERC20Token(IERC20Token _token, address _to, uint256 _amount) public authOnly {
+transferERC20Token(IERC20Token _token, address _to, uint256 _amount) public authOnly
 // Internal: Transfer tokens to specified address
 ```
 
 ```typescript
-oracleValue() public view returns(uint) {
+oracleValue() public view returns(uint)
 // Returns the vault's oracle value
 ```
 
 ```typescript
-setAuctionAddress(address _borrower, address _auction) public authOnly {
-// Internal: Todo
+setAuctionAddress(address _borrower, address _auction) public authOnly
+// Internal: Setter for mapping which references auction
 ```
 
 ## Auction.sol
-
 ###  Variables
 ```typescript
 address public borrower;
-IVault public vault;
-IContractRegistry public registry;
+// Address of the depositor/borrower
+
 uint public auctionEndTime;
+// Timestamp determining when the auction will end
+
 address public highestBidder;
+// Address of highest bidder for current auction
+
 uint256 public highestBid;
+// Amount of highest bid for current auction
+
 uint256 public amountToPay;
+// Amount required to pay off debt
+
 mapping(address => uint256) pendingReturns;
+// Quantity of tokens pending return to an address
+
 bool ended;
+// Has the auction ended?
 ```
 
+### Functions
 ```typescript
-modifier authOnly() {
+modifier authOnly()
 // Function modifier which requires the calling address to be listed in the registry
 ```
 
 ```typescript
-function bid(uint256 _amount) public {
-// Places a bid on the current auction
-// Increases end time by biddingTime
-// Deposits _amount of tokens in order to place bid
-// Repays vault debt
+bid(uint256 _amount) public
+// Places a bid on the current auction, accepts an actual value
+// _amount refers to the amount of collateral that will be returned to the borrower.
+// The remainder will be received by the winning bidder.
 ```
 
 ```typescript
-function auctionEnd() public authOnly {
+auctionEnd() public authOnly
 // Internal: Ends an auction
 ```
 
-## AuctionActions.sol
 ```typescript
-    function startAuction(IVault _vault, address _borrower) public validate(_vault, _borrower) returns(address) {
-// Public function to begin an auction on an insolvent debt.
+hasEnded() public view returns (bool)
+// Public view: Answers whether or not an auction has ended
+```
+
+## AuctionActions.sol
+### Functions
+```typescript
+startAuction(IVault _vault, address _borrower) public validate(_vault, _borrower) returns(address)
+// Public to begin an auction on an insolvent debt.
 // Sets raw balance and debt of this auction to match borrower's collateral/debt, then sets the borrower's collateral/debt to zero.
 ```
 
 ```typescript
-    function endAuction(IVault _vault, address _borrower) public validate(_vault, _borrower) {
+endAuction(IVault _vault, address _borrower) public validate(_vault, _borrower)
 // Public:
 // 1. Adds the raw balance of the auction and subtracts the highest bid from the highest bidder.
 // 2. Adds the highest bid to the borrower's balance
 ```
 
 ## LogicActions.sol
+### Functions
 ```typescript
-function deposit(IVault _vault, uint256 _amount) public validate(_vault, msg.sender) {
+deposit(IVault _vault, uint256 _amount) public validate(_vault, msg.sender)
 // Deposits an amount of tokens into a vault
 // Increases user's raw balance by number of tokens deposited
 ```
 
 ```typescript
-function withdraw(IVault _vault, address _to, uint256 _amount) public validate(_vault, msg.sender) {
+withdraw(IVault _vault, address _to, uint256 _amount) public validate(_vault, msg.sender)
 // Verifies the borrower has excess collateral to withdraw, deducts the amount from their balance, and transfers the requested number of tokens to the user.
 ```
 
 ```typescript
-function borrow(IVault _vault, uint256 _amount) public validate(_vault, msg.sender) {
+borrow(IVault _vault, uint256 _amount) public validate(_vault, msg.sender)
 // Verifies the borrower has sufficient available credit and borrows against their collateral
 // Increases raw debt by amount borrowed
 // For Vault A, mints stable token, for Vault B borrows from Vault A's balance.
 ```
 
 ```typescript
-function doPay(IVault _vault, address _payor, address _borrower, uint256 _amount, bool _all) internal {
-// Todo
-// This appears to pay another user's debt off, used internally?
+doPay(IVault _vault, address _payor, address _borrower, uint256 _amount, bool _all) internal
+// Internal: Used to repay a debt. Called by repay(), repayAll(), and repayAuction()
 ```
 
 ```typescript
-function repay(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower) {
+repay(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower)
 // Public: Repays an amount of the borrower's debt. Calls doPay()
 ```
 
 ```typescript
-function repayAll(IVault _vault, address _borrower) public validate(_vault, _borrower) {
+repayAll(IVault _vault, address _borrower) public validate(_vault, _borrower)
 // Public: Repays a borrower's entire debt. Calls doPay()
 ```
 
@@ -414,21 +378,23 @@ The oracle maintains the value of the collateral token. In order to update it, t
 ```typescript
 uint256 public value = 1000000;
 // Current Oracle Value
+
 uint256 public newValue = 1000000;
 // Staging new value to replace value
 ```
 
+### Functions
 ```typescript
-function updateValue(uint256 _newValue) public ownerOnly {
+updateValue(uint256 _newValue) public ownerOnly
 // Accepts a new oracle value to hold for confirmation as newValue
 ```
 
 ```typescript
-function confirmValueUpdate() public ownerOnly {
+confirmValueUpdate() public ownerOnly
 // Sets oracle value to newValue.
 ```
 
 ```typescript
-function getValue() public view returns (uint256) {
+getValue() public view returns (uint256)
 // Public: Gets current oracle value
 ```

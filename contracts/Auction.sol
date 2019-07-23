@@ -16,7 +16,6 @@ contract Auction is ContractIds {
     address public highestBidder;
     uint256 public highestBid;
     uint256 public amountToPay;
-    uint256 public pendingReturn;
     bool ended;
 
     event HighestBidIncreased(address indexed _bidder, uint256 _amount);
@@ -44,14 +43,13 @@ contract Auction is ContractIds {
         IERC20Token token = pegLogic.getDebtToken(vault);
         token.transferFrom(msg.sender, address(this), amountToPay);
         if (highestBid != 0) {
-            require(token.transfer(highestBidder, pendingReturn), "Error transferring token to last highest bidder.");
+            require(token.transfer(highestBidder, amountToPay), "Error transferring token to last highest bidder.");
         } else {
             ILogicActions logicActions = ILogicActions(registry.addressOf(ContractIds.PEG_LOGIC_ACTIONS));
             if (address(vault) == registry.addressOf(ContractIds.VAULT_B))
                 token.approve(address(logicActions), amountToPay);
             logicActions.repayAuction(vault, borrower, amountToPay);
         }
-        pendingReturn = amountToPay;
         highestBidder = msg.sender;
         highestBid = _amount;
         emit HighestBidIncreased(msg.sender, _amount);
