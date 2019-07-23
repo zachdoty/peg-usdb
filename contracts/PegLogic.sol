@@ -89,7 +89,8 @@ contract PegLogic is AntiERC20Sink, Helpers {
         if(ratio < 8e17) {
             newRate = ratio * 100 / (secondsInYear * -8);
         }
-        setCollateralBorrowingRate(newRate);
+        if(vaultB().rawTotalDebt() > 0)
+            setCollateralBorrowingRate(newRate);
     }
 
     function processStabilityFee(IVault _vault) public {
@@ -97,8 +98,8 @@ contract PegLogic is AntiERC20Sink, Helpers {
     }
 
     function setCollateralBorrowingRate(int newRate) internal {
-        vaultB().setDebtScalingRate(newRate);
-        vaultA().setBalanceScalingRate(newRate * int(ratioVaultABorrowed()) / 1e18);
+        vaultB().setDebtScalingRate(newRate/1e2);
+        vaultA().setBalanceScalingRate(newRate * int(ratioVaultABorrowed()) / 1e20);
     }
 
     function mintStabletoken(address _to, uint _amount) internal {
