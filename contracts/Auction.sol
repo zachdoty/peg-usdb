@@ -36,7 +36,8 @@ contract Auction is ContractIds {
             require(now <= auctionEndTime, "Auction has already ended");
         else
             auctionEndTime = now + vault.biddingTime();
-        require(_amount > highestBid, "There already is a higher bid");
+        if(highestBidder != address(0))
+            require(_amount > highestBid, "There already is a higher bid");
         require(vault.balanceActualToRaw(_amount) <= vault.rawBalanceOf(address(this)), "Incorrect bid amount");
         IPegLogic pegLogic = IPegLogic(registry.addressOf(ContractIds.PEG_LOGIC));
         if(amountToPay == 0) amountToPay = pegLogic.actualDebt(vault, address(this));
