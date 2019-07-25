@@ -25,7 +25,7 @@ contract AuctionActions is AntiERC20Sink, Helpers {
         require(auctionAddress == address(0), "Vault is already on auction state");
         IPegLogic ipegLogic = pegLogic();
         require(ipegLogic.actualDebt(_vault, _borrower) > 0, "Vault has no debt");
-        require(ipegLogic.isInsolvent(_vault, _borrower), "Vault is not yet for liquidation");
+        require(ipegLogic.isInsolvent(_vault, _borrower), "Vault is not eligible for liquidation");
         Auction auction = new Auction(registry, _vault, _borrower);
         _vault.setAuctionAddress(_borrower, address(auction));
         _vault.setRawBalanceOf(address(auction), _vault.rawBalanceOf(_borrower));
