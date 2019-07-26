@@ -137,7 +137,7 @@ contract("auction vault A test", (accounts) => {
         let bidder = bidders[0].address;
         lastBidder = bidders[0].address;
         await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder})
-        let res = await AuctionContract.bid(bidAmount*1e18, {from: bidder});
+        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
         assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
@@ -183,7 +183,7 @@ contract("auction vault A test", (accounts) => {
         let bidAmount = bidders[1].amount;
         let bidder = bidders[1].address;
         await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
-        let res = await AuctionContract.bid(bidAmount*1e18, {from: bidder});
+        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
         assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
@@ -197,7 +197,7 @@ contract("auction vault A test", (accounts) => {
             let bidAmount = bidders[2].amount;
             let bidder = bidders[2].address;
             await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
-            await AuctionContract.bid(bidAmount * 1e18, {from: bidder});
+            await AuctionContract.bid(bidAmount * 1e18, 0, {from: bidder});
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
