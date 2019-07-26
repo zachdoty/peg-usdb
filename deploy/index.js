@@ -25,6 +25,9 @@ if (process.argv[2] == "ropsten") {
 } else if (process.argv[2] == "rinkeby") {
     console.log("Deploying to Rinkeby...");
     provider = new HDWalletProvider(networks.rinkeby.mnemonic, "https://rinkeby.infura.io/v3/" + networks.rinkeby.infuraKey);
+}  else if (process.argv[2] == "kovan") {
+    console.log("Deploying to Kovan...");
+    provider = new HDWalletProvider(networks.kovan.mnemonic, "https://kovan.infura.io/v3/" + networks.kovan.infuraKey);
 } else if (process.argv[2] == "mainnet") {
     console.log("Deploying to main net...");
     console.log("WARNING: THIS WILL USE REAL ETHER");
@@ -380,6 +383,28 @@ const transactions = [
         arguments: [
             () => {
                 return deployedContracts["TokenFaucetContract"] ? deployedContracts["TokenFaucetContract"].options.address : null;
+            },
+            web3.utils.toWei('1000000', 'ether')
+        ],
+        value: 0
+    },
+    {
+        deployed: "StableTokenContract",
+        function: "issue",
+        arguments: [
+            () => {
+                return web3.eth.defaultAccount;
+            },
+            web3.utils.toWei('1000000', 'ether')
+        ],
+        value: 0
+    },
+    {
+        deployed: "CollateralTokenContract",
+        function: "issue",
+        arguments: [
+            () => {
+                return web3.eth.defaultAccount;
             },
             web3.utils.toWei('1000000', 'ether')
         ],

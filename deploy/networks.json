@@ -7,6 +7,10 @@
         "mnemonic": "monitor sheriff gasp language whale flavor pig unaware segment hidden useful twin",
         "infuraKey": "d267d5c6d284461ab00bc4830e25184a"
     },
+    "kovan": {
+        "mnemonic": "monitor sheriff gasp language whale flavor pig unaware segment hidden useful twin",
+        "infuraKey": "d267d5c6d284461ab00bc4830e25184a"
+    },
     "mainnet": {
         "mnemonic": ""
     },
