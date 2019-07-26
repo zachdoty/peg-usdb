@@ -15,10 +15,11 @@ contract Auction is ContractIds {
     uint public auctionEndTime;
     address public highestBidder;
     uint256 public highestBid;
+    uint256 public lowestBidRelay;
     uint256 public amountToPay;
     bool ended;
 
-    event HighestBidIncreased(address indexed _bidder, uint256 _amount);
+    event HighestBidIncreased(address indexed _bidder, uint256 _amount, uint256 _amountRelay);
 
     constructor(IContractRegistry _registry, IVault _vault, address _borrower) public {
         registry = _registry;
@@ -31,19 +32,28 @@ contract Auction is ContractIds {
         _;
     }
 
-    function bid(uint256 _amount) public {
+    modifier auctionActive() {
         if(auctionEndTime > 0)
             require(now <= auctionEndTime, "Auction has already ended");
         else
             auctionEndTime = now + vault.biddingTime();
+        _;
+    }
+
+    function validateBid(uint256 _amount, uint256 _amountRelay) internal view {
+        require(_amount == 0 || _amountRelay == 0, "Can't refund collateral and mint relay tokens");
         if(highestBidder != address(0))
-            require(_amount > highestBid, "There already is a higher bid");
-        require(vault.balanceActualToRaw(_amount) <= vault.rawBalanceOf(address(this)), "Incorrect bid amount");
+            require(_amount > highestBid || _amountRelay < lowestBidRelay, "There already is a higher bid");
+        require(vault.balanceActualToRaw(_amount) <= vault.rawBalanceOf(address(this)), "Can't refund more than 100%");
+    }
+
+    function bid(uint256 _amount, uint256 _amountRelay) public auctionActive {
+        validateBid(_amount, _amountRelay);
         IPegLogic pegLogic = IPegLogic(registry.addressOf(ContractIds.PEG_LOGIC));
         if(amountToPay == 0) amountToPay = pegLogic.actualDebt(vault, address(this));
         IERC20Token token = pegLogic.getDebtToken(vault);
         token.transferFrom(msg.sender, address(this), amountToPay);
-        if (highestBid != 0) {
+        if (highestBidder != address(0)) {
             require(token.transfer(highestBidder, amountToPay), "Error transferring token to last highest bidder.");
         } else {
             ILogicActions logicActions = ILogicActions(registry.addressOf(ContractIds.PEG_LOGIC_ACTIONS));
@@ -53,7 +63,8 @@ contract Auction is ContractIds {
         }
         highestBidder = msg.sender;
         highestBid = _amount;
-        emit HighestBidIncreased(msg.sender, _amount);
+        lowestBidRelay = _amountRelay;
+        emit HighestBidIncreased(msg.sender, _amount, _amountRelay);
     }
 
     function auctionEnd() public authOnly {
