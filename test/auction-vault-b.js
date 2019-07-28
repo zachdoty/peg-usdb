@@ -4,7 +4,7 @@ const Auction = artifacts.require("Auction");
 contract("auction vault B test", (accounts) => {
 
     const BNT_toBorrow = 1000;
-    const PEGUSD_toBorrow = 500;
+    const BUSD_toBorrow = 500;
 
     before(async () => {
         contracts = await utils.contracts(accounts);
@@ -17,7 +17,7 @@ contract("auction vault B test", (accounts) => {
         StableTokenContract = contracts.BUSD_Contracts.stableToken;
         OracleContract = contracts.BUSD_Contracts.oracle;
         CollateralTokenContract = contracts.CollateralTokenContract;
-        DebtTokenContract = contracts.PEGUSDTokenContract;
+        DebtTokenContract = contracts.BUSD_Contracts.stableToken;
 
         admin = accounts[0];
         borrowerVaultA = accounts[1];
@@ -61,21 +61,21 @@ contract("auction vault B test", (accounts) => {
     it("should create new vault && fund collateral tokens to vault B", async () => {
         let balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect initial user collateral token balance');
-        await DebtTokenContract.issue(borrowerVaultB, PEGUSD_toBorrow * 1e18);
+        await DebtTokenContract.issue(borrowerVaultB, BUSD_toBorrow * 1e18);
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
-        assert.equal(balance / 1e18, PEGUSD_toBorrow, 'Incorrect user collateral token balance');
+        assert.equal(balance / 1e18, BUSD_toBorrow, 'Incorrect user collateral token balance');
 
         await DebtTokenContract.approve(LogicActionsContract.address, 0, {from: borrowerVaultB});
-        await DebtTokenContract.approve(LogicActionsContract.address, PEGUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await DebtTokenContract.approve(LogicActionsContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
 
-        await LogicActionsContract.deposit(VaultBContract.address, PEGUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await LogicActionsContract.deposit(VaultBContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect user collateral token balance after deposit');
 
         assert.equal(await VaultBContract.vaultExists.call(borrowerVaultB), true, 'vault does not exist');
         assert.equal((await VaultBContract.getVaults.call()).length, 1, 'Incorrect vaults count');
-        assert.equal(Number(await DebtTokenContract.balanceOf.call(VaultBContract.address)) / 1e18, PEGUSD_toBorrow, 'Incorrect vault contract collateral token balance');
-        assert.equal(Number(await VaultBContract.rawBalanceOf.call(borrowerVaultB)) / 1e18, PEGUSD_toBorrow, 'Incorrect vault collateral balance');
+        assert.equal(Number(await DebtTokenContract.balanceOf.call(VaultBContract.address)) / 1e18, BUSD_toBorrow, 'Incorrect vault contract collateral token balance');
+        assert.equal(Number(await VaultBContract.rawBalanceOf.call(borrowerVaultB)) / 1e18, BUSD_toBorrow, 'Incorrect vault collateral balance');
     });
 
     it("should borrow debt token from vault B", async () => {
@@ -169,7 +169,7 @@ contract("auction vault B test", (accounts) => {
         lastBidder = bidders[0].address;
 
         await CollateralTokenContract.approve(AuctionContract.address, auctionActualDebt + (auctionActualDebt * 0.50), {from:bidder});
-        let res = await AuctionContract.bid(bidAmount*1e18, {from: bidder});
+        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
         assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
@@ -191,12 +191,12 @@ contract("auction vault B test", (accounts) => {
 
     it("should throw error when vault is on auction and tries to borrow", async () => {
         assert.equal(await PegLogicContract.isInsolvent.call(VaultBContract.address, borrowerVaultB), false, 'vault is not for liquidation so far');
-        await DebtTokenContract.issue(borrowerVaultB, PEGUSD_toBorrow * 1e18);
+        await DebtTokenContract.issue(borrowerVaultB, BUSD_toBorrow * 1e18);
         
         await DebtTokenContract.approve(LogicActionsContract.address, 0, {from: borrowerVaultB});
-        await DebtTokenContract.approve(LogicActionsContract.address, PEGUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await DebtTokenContract.approve(LogicActionsContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
 
-        await LogicActionsContract.deposit(VaultBContract.address, PEGUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await LogicActionsContract.deposit(VaultBContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect user debt token balance after deposit');
 
@@ -218,7 +218,7 @@ contract("auction vault B test", (accounts) => {
         let bidAmount = bidders[1].amount;
         let bidder = bidders[1].address;
         await CollateralTokenContract.approve(AuctionContract.address, auctionActualDebt + (auctionActualDebt * 0.50), {from:bidder});
-        let res = await AuctionContract.bid(bidAmount*1e18, {from: bidder});
+        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
         assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
@@ -232,7 +232,7 @@ contract("auction vault B test", (accounts) => {
             let bidAmount = bidders[2].amount;
             let bidder = bidders[2].address;
             await CollateralTokenContract.approve(AuctionContract.address, auctionActualDebt, {from:bidder});
-            await AuctionContract.bid(bidAmount * 1e18, {from: bidder});
+            await AuctionContract.bid(bidAmount * 1e18, 0, {from: bidder});
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
