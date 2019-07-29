@@ -35,7 +35,6 @@ contract LogicActions is Helpers {
     function withdraw(IVault _vault, address _to, uint256 _amount) public validate(_vault, msg.sender) {
         IPegLogic ipegLogic = pegLogic();
         require(_amount.toInt256() <= ipegLogic.excessCollateral(_vault, msg.sender), "Insufficient collateral balance");
-        _vault.transferERC20Token(ipegLogic.getCollateralToken(_vault), _to, _amount);
         _vault.setRawBalanceOf(
             msg.sender,
             _vault.rawBalanceOf(msg.sender).minus(_vault.balanceActualToRaw(_amount))
@@ -43,6 +42,7 @@ contract LogicActions is Helpers {
         _vault.setRawTotalBalance(
             _vault.rawTotalBalance().minus(_vault.balanceActualToRaw(_amount))
         );
+        _vault.transferERC20Token(ipegLogic.getCollateralToken(_vault), _to, _amount);
         ipegLogic.adjustCollateralBorrowingRate();
         _vault.emitWithdraw(msg.sender, _to, _amount);
     }
