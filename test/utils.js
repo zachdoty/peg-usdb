@@ -8,6 +8,7 @@ const LogicActions = artifacts.require("LogicActions");
 const AuctionActions = artifacts.require("AuctionActions");
 const PegSettings = artifacts.require("PegSettings");
 const Oracle = artifacts.require("Oracle");
+const BancorConverter = artifacts.require("BancorConverter");
 
 const isException = error => {
     let strError = error.toString();
@@ -26,7 +27,7 @@ const createContracts = async accounts => {
     const PEGUSDTokenContract = await SmartToken.new("PEG Network Token", "PEG:USD", 18);
     await RegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);
     await RegistryContract.registerAddress(await ContractIdsContract.PEGUSD_TOKEN.call(), PEGUSDTokenContract.address);
-
+    
     // BUSD Instance
     const InstanceRegistryContract = await ContractRegistry.new();
     const StableTokenContract = await StableToken.new("Bancor USD", "BUSD", 18, InstanceRegistryContract.address);
@@ -54,13 +55,19 @@ const createContracts = async accounts => {
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_LOGIC.call(), PegLogicContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_LOGIC_ACTIONS.call(), LogicActionsContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.AUCTION_ACTIONS.call(), AuctionActionsContract.address);
-    await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), accounts[9]);
+
+
+    // RELAY TOKEN
+    const RelayTokenContract = await StableToken.new("PEGUSD:BUSD Relay Token", "PEGUSD:BUSD", 18, InstanceRegistryContract.address);
+    const Converter = await BancorConverter.new(RelayTokenContract.address);
+    await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), Converter.address);
     
     return {
         RegistryContract: RegistryContract,
         ContractIdsContract: ContractIdsContract,
         CollateralTokenContract: CollateralTokenContract,
         PEGUSDTokenContract: PEGUSDTokenContract,
+        RelayTokenContract: RelayTokenContract,
         BUSD_Contracts: {
             vaultA: VaultAContract,
             vaultB: VaultBContract,
