@@ -64,7 +64,7 @@ contract("scaling vault A hourly test", (accounts) => {
         });
     });
 
-    for(let i = 0; i < 5; i++) {
+    for(let i = 0; i < 48; i++) {
         it(`advance evm time ${i+1} hour`, async () => {
             const debtBefore = Number(await PegLogicContract.actualDebt.call(VaultContract.address, vault));
             const initialBlock = web3.eth.blockNumber;
