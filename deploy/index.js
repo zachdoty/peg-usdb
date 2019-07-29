@@ -83,6 +83,19 @@ const contracts = [
         deployed: "StableTokenContract"
     },
     {
+        contract: "StableToken",
+        arguments: [
+            "PEGUSD-BUSD Relay Token",
+            "PEGUSD:BUSD",
+            18,
+            () => {
+                return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;
+            }
+        ],
+        value: 0,
+        deployed: "RelayTokenContract"
+    },
+    {
         contract: "Vault",
         arguments: [
             () => {
@@ -410,6 +423,17 @@ const transactions = [
         ],
         value: 0
     },
+    {
+        deployed: "RelayTokenContract",
+        function: "issue",
+        arguments: [
+            () => {
+                return web3.eth.defaultAccount;
+            },
+            web3.utils.toWei('1000000', 'ether')
+        ],
+        value: 0
+    },
 ];
 
 const rootDir = __dirname.replace("deploy", "");
@@ -471,7 +495,8 @@ web3.eth.getAccounts().then(async accounts => {
         auctionActions: deployedContracts["AuctionActionsContract"].options.address,
         oracle: deployedContracts["OracleContract"].options.address,
         ids: deployedContracts["ContractIdsContract"].options.address,
-        faucet: deployedContracts["TokenFaucetContract"].options.address
+        faucet: deployedContracts["TokenFaucetContract"].options.address,
+        relay: deployedContracts["RelayTokenContract"].options.address
     };
 
     fs.writeFileSync(`${rootDir}addresses.json`, JSON.stringify(addresses));
