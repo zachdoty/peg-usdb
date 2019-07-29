@@ -1,6 +1,5 @@
 pragma solidity ^0.4.23;
 
-import "./library/AntiERC20Sink.sol";
 import "./library/SafeMath.sol";
 import "./interfaces/IAuction.sol";
 import "./interfaces/IPegLogic.sol";

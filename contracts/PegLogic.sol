@@ -3,7 +3,6 @@ pragma solidity ^0.4.23;
 import "./Helpers.sol";
 import "./ContractIds.sol";
 import "./library/SafeMath.sol";
-import "./library/AntiERC20Sink.sol";
 import "./interfaces/IContractRegistry.sol";
 import "./interfaces/IVault.sol";
 
