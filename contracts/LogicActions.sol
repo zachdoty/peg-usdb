@@ -19,8 +19,7 @@ contract LogicActions is Helpers {
 
     function deposit(IVault _vault, uint256 _amount) public validate(_vault, msg.sender) {
         IERC20Token vaultCollateralToken = pegLogic().getCollateralToken(_vault);
-        vaultCollateralToken.transferFrom(msg.sender, address(this), _amount);
-        vaultCollateralToken.transfer(address(_vault), _amount);
+        vaultCollateralToken.transferFrom(msg.sender, address(_vault), _amount);
         _vault.setRawBalanceOf(
             msg.sender,
             _vault.rawBalanceOf(msg.sender).plus(_vault.balanceActualToRaw(_amount))
@@ -70,8 +69,7 @@ contract LogicActions is Helpers {
         if (address(_vault) == address(vaultA())) {
             vaultDebtToken.destroy(_payor, _amount);
         } else {
-            vaultDebtToken.transferFrom(_payor, address(this), _amount);
-            vaultDebtToken.transfer(address(vaultA()), _amount);
+            vaultDebtToken.transferFrom(_payor, address(vaultA()), _amount);
         }
         _vault.setRawTotalDebt(_vault.rawTotalDebt().minus(_vault.debtActualToRaw(_amount)));
 
