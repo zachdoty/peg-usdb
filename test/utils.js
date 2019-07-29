@@ -59,8 +59,8 @@ const createContracts = async accounts => {
 
     // RELAY TOKEN
     const RelayTokenContract = await StableToken.new("PEGUSD:BUSD Relay Token", "PEGUSD:BUSD", 18, InstanceRegistryContract.address);
-    const Converter = await BancorConverter.new(RelayTokenContract.address);
-    await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), Converter.address);
+    const ConverterContract = await BancorConverter.new(RelayTokenContract.address);
+    await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), ConverterContract.address);
     
     return {
         RegistryContract: RegistryContract,
@@ -68,6 +68,7 @@ const createContracts = async accounts => {
         CollateralTokenContract: CollateralTokenContract,
         PEGUSDTokenContract: PEGUSDTokenContract,
         RelayTokenContract: RelayTokenContract,
+        ConverterContract: ConverterContract,
         BUSD_Contracts: {
             vaultA: VaultAContract,
             vaultB: VaultBContract,
