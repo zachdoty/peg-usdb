@@ -10,7 +10,7 @@ import "./interfaces/IBancorConverter.sol";
 import "./Auction.sol";
 import "./Helpers.sol";
 
-contract AuctionActions is AntiERC20Sink, Helpers {
+contract AuctionActions is Helpers {
 
     using SafeMath for uint256;
     using SafeMath for int256;

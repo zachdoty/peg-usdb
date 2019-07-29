@@ -7,7 +7,7 @@ import "./interfaces/IPegLogic.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IERC20Token.sol";
 
-contract LogicActions is AntiERC20Sink, Helpers {
+contract LogicActions is Helpers {
 
     using SafeMath for uint256;
     using SafeMath for int256;
@@ -91,7 +91,7 @@ contract LogicActions is AntiERC20Sink, Helpers {
         doPay(_vault, msg.sender, _borrower, _amount, false);
     }
 
-    function repayAuction(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower) 
+    function repayAuction(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower)
     {
         require(_vault.auctions(_borrower) == msg.sender, "Invalid auction");
         doPay(_vault, msg.sender, msg.sender, _amount, true);
