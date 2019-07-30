@@ -13,6 +13,7 @@ contract Auction is ContractIds {
     IVault public vault;
     IContractRegistry public registry;
     uint public auctionEndTime;
+    uint public auctionStartTime;
     address public highestBidder;
     uint256 public highestBid;
     uint256 public lowestBidRelay;
@@ -35,8 +36,10 @@ contract Auction is ContractIds {
     modifier auctionActive() {
         if(auctionEndTime > 0)
             require(now <= auctionEndTime, "Auction has already ended");
-        else
+        else {
+            auctionStartTime = now;
             auctionEndTime = now + vault.biddingTime();
+        }
         _;
     }
 
@@ -49,6 +52,8 @@ contract Auction is ContractIds {
 
     function bid(uint256 _amount, uint256 _amountRelay) public auctionActive {
         validateBid(_amount, _amountRelay);
+        if(_amountRelay > 0)
+            auctionEndTime = auctionStartTime + 172800; // extends to 48 hours auction
         IPegLogic pegLogic = IPegLogic(registry.addressOf(ContractIds.PEG_LOGIC));
         if(amountToPay == 0) amountToPay = pegLogic.actualDebt(vault, address(this));
         IERC20Token token = pegLogic.getDebtToken(vault);
