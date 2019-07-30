@@ -1,9 +1,5 @@
 pragma solidity ^0.4.23;
 
-import "./interfaces/IPegOracle.sol";
-import "./interfaces/IVault.sol";
-import "./interfaces/IStableToken.sol";
-import "./interfaces/ISmartToken.sol";
 import "./interfaces/IContractRegistry.sol";
 import "./library/SafeMath.sol";
 import "./ContractIds.sol";
@@ -37,4 +33,5 @@ contract PegSettings is ContractIds {
     function transferERC20Token(IERC20Token _token, address _to, uint256 _amount) public authOnly {
         _token.transfer(_to, _amount);
     }
+    
 }
