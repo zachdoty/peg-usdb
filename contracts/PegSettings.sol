@@ -7,7 +7,7 @@ contract PegSettings {
     mapping (address => bool) public authorized;
 
     address[] public signers;
-    mapping (address => bool) isSigner;
+    mapping (address => bool) public isSigner;
 
     mapping (bytes32 => mapping(address => bool)) voters;
     mapping (bytes32 => uint) votes;
@@ -17,13 +17,17 @@ contract PegSettings {
 
     event Authorize(address _address, bool _auth);
 
-    constructor(address[] _signers) public {
+    constructor(address[] _signers, address[] _defaultAddresses) public {
         require(_signers.length > 0, "Signers are required");
-        for (uint i = 0; i < _signers.length; i++) {
+        uint i;
+        for (i = 0; i < _signers.length; i++) {
             require(!isSigner[_signers[i]], "Duplicate signers entry");
             isSigner[_signers[i]] = true;
         }
         signers = _signers;
+        for (i = 0; i < _defaultAddresses.length; i++) {
+            authorized[_defaultAddresses[i]] = true;
+        }
         authorized[msg.sender] = true;
     }
 
