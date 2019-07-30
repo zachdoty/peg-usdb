@@ -166,6 +166,16 @@ const contracts = [
         arguments: [],
         value: 0,
         deployed: "ContractIdsContract"
+    },
+    {
+        contract: "BancorConverter",
+        arguments: [
+            () => {
+                return deployedContracts["RelayTokenContract"] ? deployedContracts["RelayTokenContract"].options.address : null;
+            }
+        ],
+        value: 0,
+        deployed: "ConverterContract"
     }
 ];
 
@@ -385,7 +395,7 @@ const transactions = [
                 return deployedContracts["ContractIdsContract"] ? await deployedContracts["ContractIdsContract"].methods.FEE_RECIPIENT().call() : null;
             },
             () => {
-                return web3.eth.defaultAccount;
+                return deployedContracts["ConverterContract"] ? deployedContracts["ConverterContract"].options.address : null;
             }
         ],
         value: 0
@@ -422,18 +432,7 @@ const transactions = [
             web3.utils.toWei('1000000', 'ether')
         ],
         value: 0
-    },
-    {
-        deployed: "RelayTokenContract",
-        function: "issue",
-        arguments: [
-            () => {
-                return web3.eth.defaultAccount;
-            },
-            web3.utils.toWei('1000000', 'ether')
-        ],
-        value: 0
-    },
+    }
 ];
 
 const rootDir = __dirname.replace("deploy", "");
