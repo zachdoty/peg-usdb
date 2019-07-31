@@ -40,7 +40,13 @@ const createContracts = async accounts => {
     const AuctionActionsContract = await AuctionActions.new(InstanceRegistryContract.address);
     const OracleContract = await Oracle.new();
 
-    const defaultAddresses = [PegLogicContract.address, LogicActionsContract.address, AuctionActionsContract.address, VaultAContract.address, VaultBContract.address];
+    const defaultAddresses = [
+        PegLogicContract.address, 
+        LogicActionsContract.address, 
+        AuctionActionsContract.address, 
+        VaultAContract.address, 
+        VaultBContract.address
+    ];
     const PegSettingsContract = await PegSettings.new(signers, defaultAddresses);
 
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);

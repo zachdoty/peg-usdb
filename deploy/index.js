@@ -119,8 +119,18 @@ const contracts = [
         contract: "PegSettings",
         arguments: [
             () => {
-                return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;
-            }
+                return [web3.eth.defaultAccount]
+            },
+            () => {
+                return [
+                    deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
+                    deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
+                    deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
+                    deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
+                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
+                ]
+            },
+
         ],
         value: 0,
         deployed: "PegSettingsContract"
@@ -199,61 +209,6 @@ const transactions = [
                 return deployedContracts["TokenFaucetContract"] ? deployedContracts["TokenFaucetContract"].options.address : null;
             },
             web3.utils.toWei('1000000', 'ether')
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null;
-            },
-            true
         ],
         value: 0
     },

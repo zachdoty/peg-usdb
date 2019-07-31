@@ -21,7 +21,8 @@ console.log("Deploying to main net...");
 console.log("WARNING: THIS WILL USE REAL ETHER");
 console.log("Press CTRL + C to cancel...");
 
-const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
+// const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
+const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://rinkeby.infura.io/v3/" + networks.mainnet.infuraKey);
 
 const web3 = new Web3(provider);
 
@@ -88,8 +89,18 @@ const contracts = [
         contract: "PegSettings",
         arguments: [
             () => {
-                return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;
-            }
+                return [web3.eth.defaultAccount]
+            },
+            () => {
+                return [
+                    deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
+                    deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
+                    deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
+                    deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
+                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
+                ]
+            },
+
         ],
         value: 0,
         deployed: "PegSettingsContract"
@@ -139,61 +150,6 @@ const contracts = [
 ];
 
 const transactions = [
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
-    {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [
-            () => {
-                return deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null;
-            },
-            true
-        ],
-        value: 0
-    },
     {
         deployed: "InstanceRegistryContract",
         function: "registerAddress",
@@ -394,7 +350,7 @@ web3.eth.getAccounts().then(async accounts => {
     if (fs.existsSync(`${rootDir}mainnet-addresses.json`)) {
         addresses = require(`${rootDir}mainnet-addresses.json`);
     }
-    addresses[mainnet] = {
+    addresses['mainnet'] = {
         pegusd_token: deployedContracts["PEGUSDContract"].options.address,
         stable_token: deployedContracts["StableTokenContract"].options.address,
         registry: deployedContracts["InstanceRegistryContract"].options.address,
