@@ -158,6 +158,16 @@ const contracts = [
         deployed: "ContractIdsContract"
     },
     {
+        contract: "BancorConverter",
+        arguments: [
+            () => {
+                return deployedContracts["RelayTokenContract"] ? deployedContracts["RelayTokenContract"].options.address : null;
+            }
+        ],
+        value: 0,
+        deployed: "ConverterContract"
+    },
+    {
         contract: "PegSettings",
         arguments: [
             () => {
@@ -169,7 +179,8 @@ const contracts = [
                     deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
                     deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
                     deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
-                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
+                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null,
+                    deployedContracts["ConverterContract"] ? deployedContracts["ConverterContract"].options.address : null
                 ]
             },
 
@@ -177,16 +188,6 @@ const contracts = [
         value: 0,
         deployed: "PegSettingsContract"
     },
-    {
-        contract: "BancorConverter",
-        arguments: [
-            () => {
-                return deployedContracts["RelayTokenContract"] ? deployedContracts["RelayTokenContract"].options.address : null;
-            }
-        ],
-        value: 0,
-        deployed: "ConverterContract"
-    }
 ];
 
 const transactions = [
