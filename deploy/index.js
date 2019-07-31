@@ -116,26 +116,6 @@ const contracts = [
         deployed: "VaultBContract"
     },
     {
-        contract: "PegSettings",
-        arguments: [
-            () => {
-                return [web3.eth.defaultAccount]
-            },
-            () => {
-                return [
-                    deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
-                    deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
-                    deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
-                    deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
-                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
-                ]
-            },
-
-        ],
-        value: 0,
-        deployed: "PegSettingsContract"
-    },
-    {
         contract: "PegLogic",
         arguments: [
             () => {
@@ -176,6 +156,26 @@ const contracts = [
         arguments: [],
         value: 0,
         deployed: "ContractIdsContract"
+    },
+    {
+        contract: "PegSettings",
+        arguments: [
+            () => {
+                return [web3.eth.defaultAccount]
+            },
+            () => {
+                return [
+                    deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
+                    deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
+                    deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
+                    deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
+                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
+                ]
+            },
+
+        ],
+        value: 0,
+        deployed: "PegSettingsContract"
     },
     {
         contract: "BancorConverter",
