@@ -9,6 +9,7 @@ const AuctionActions = artifacts.require("AuctionActions");
 const PegSettings = artifacts.require("PegSettings");
 const Oracle = artifacts.require("Oracle");
 const BancorConverter = artifacts.require("BancorConverter");
+const MultiSigWallet = artifacts.require("MultiSigWallet");
 
 const isException = error => {
     let strError = error.toString();
@@ -20,7 +21,7 @@ const ensureException = error => {
 }
 
 const createContracts = async accounts => {
-    const signers =  accounts.slice(4, 6);
+    const owners =  accounts.slice(4, 6);
 
     const RegistryContract = await ContractRegistry.new();
 
@@ -47,7 +48,9 @@ const createContracts = async accounts => {
         VaultAContract.address, 
         VaultBContract.address
     ];
-    const PegSettingsContract = await PegSettings.new(signers, defaultAddresses);
+    const MultiSigWalletContract = await MultiSigWallet.new(owners, owners.length);
+    const PegSettingsContract = await PegSettings.new(defaultAddresses);
+    await PegSettingsContract.setOwner(MultiSigWalletContract.address);
 
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEGUSD_TOKEN.call(), PEGUSDTokenContract.address);
@@ -66,7 +69,7 @@ const createContracts = async accounts => {
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), ConverterContract.address);
     
     return {
-        Signers: signers,
+        Owners: owners,
         DefaultAuthorization: defaultAddresses,
         RegistryContract: RegistryContract,
         ContractIdsContract: ContractIdsContract,
@@ -74,6 +77,7 @@ const createContracts = async accounts => {
         PEGUSDTokenContract: PEGUSDTokenContract,
         RelayTokenContract: RelayTokenContract,
         ConverterContract: ConverterContract,
+        MultiSigWalletContract: MultiSigWalletContract,
         BUSD_Contracts: {
             vaultA: VaultAContract,
             vaultB: VaultBContract,
