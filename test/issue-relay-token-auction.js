@@ -235,6 +235,25 @@ contract("issue relay token on auction test", (accounts) => {
         }
     });
 
+    it(`should advance evm time 3 hours and 5 seconds`, async () => {
+        const initialBlock = web3.eth.blockNumber;
+        const initialTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
+        await web3.currentProvider.send({
+            jsonrpc: "2.0",
+            method: "evm_increaseTime",
+            params: [10805],
+            id: Date.now() + 1
+        });
+        await web3.currentProvider.send({
+            jsonrpc: "2.0",
+            method: "evm_mine",
+            id: Date.now() + 2
+        });
+        const laterBlock = web3.eth.blockNumber;
+        const laterTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
+        assert((initialTime + 10805) <= laterTime, 'evm time not advanced');
+        assert.isBelow(initialBlock, laterBlock, 'initialBlock is above laterBlock');
+    });
 
     it("should have throw error when calling auction end before time is not due", async () => {
         try {
@@ -245,13 +264,13 @@ contract("issue relay token on auction test", (accounts) => {
         }
     });
 
-    it(`should advance evm time 3 hours and 5 seconds`, async () => {
+    it(`should advance evm time 45 hours and 5 seconds`, async () => {
         const initialBlock = web3.eth.blockNumber;
         const initialTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
         await web3.currentProvider.send({
             jsonrpc: "2.0",
             method: "evm_increaseTime",
-            params: [10805],
+            params: [162005],
             id: Date.now() + 1
         });
         await web3.currentProvider.send({
