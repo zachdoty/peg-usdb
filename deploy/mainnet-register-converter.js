@@ -25,19 +25,27 @@ const web3 = new Web3(provider);
 
 // change these addresses
 const addressConverter = "0xb6556E3af9830212175121CbCA631Ded20F11ab4";
-const addressPegSettings = "0xb01DE83e220a5698B8770F085422f3f17e32B52d";
+const addressContractIds = "0xb01DE83e220a5698B8770F085422f3f17e32B52d";
+const addressRegistry = "0xb01DE83e220a5698B8770F085422f3f17e32B52d";
 
-const PegSettingsABI = require("../abi/PegSettings.json").abi;
+const RegistryABI = require("../abi/ContractRegistry.json").abi;
+const ContractIdsABI = require("../abi/ContractIds.json").abi;
 
-deployedContracts["PegSettingsContract"] = new web3.eth.Contract(PegSettingsABI, addressPegSettings);
+deployedContracts["RegistryContract"] = new web3.eth.Contract(RegistryABI, addressRegistry);
+deployedContracts["ContractIdsContract"] = new web3.eth.Contract(ContractIdsABI, addressContractIds);
 
 const transactions = [
     {
-        deployed: "PegSettingsContract",
-        function: "authorize",
-        arguments: [addressConverter, true],
+        deployed: "RegistryContract",
+        function: "registerAddress",
+        arguments: [
+            async () => {
+                return deployedContracts["ContractIdsContract"] ? await deployedContracts["ContractIdsContract"].methods.FEE_RECIPIENT().call() : null;
+            },
+            addressConverter
+        ],
         value: 0
-    },
+    }
 ];
 
 const deployTransactions = async () => {

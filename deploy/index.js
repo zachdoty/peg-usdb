@@ -171,26 +171,42 @@ const contracts = [
         contract: "PegSettings",
         arguments: [
             () => {
-                return [web3.eth.defaultAccount]
-            },
-            () => {
                 return [
                     deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
                     deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
                     deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
                     deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
                     deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null,
-                    deployedContracts["ConverterContract"] ? deployedContracts["ConverterContract"].options.address : null
                 ]
-            },
-
+            }
         ],
         value: 0,
         deployed: "PegSettingsContract"
     },
+    {
+        contract: "MultiSigWallet",
+        arguments: [
+            () => {
+                return [web3.eth.defaultAccount]
+            },
+            1
+        ],
+        value: 0,
+        deployed: "MultiSigWalletContract"
+    },
 ];
 
 const transactions = [
+    {
+        deployed: "PegSettingsContract",
+        function: "setOwner",
+        arguments: [
+            () => {
+                return deployedContracts["MultiSigWalletContract"] ? deployedContracts["MultiSigWalletContract"].options.address : null;
+            }
+        ],
+        value: 0
+    },
     {
         deployed: "CollateralTokenContract",
         function: "issue",
@@ -451,7 +467,8 @@ web3.eth.getAccounts().then(async accounts => {
         oracle: deployedContracts["OracleContract"].options.address,
         ids: deployedContracts["ContractIdsContract"].options.address,
         faucet: deployedContracts["TokenFaucetContract"].options.address,
-        relay: deployedContracts["RelayTokenContract"].options.address
+        relay: deployedContracts["RelayTokenContract"].options.address,
+        multisigwallet: deployedContracts["MultiSigWalletContract"].options.address,
     };
 
     fs.writeFileSync(`${rootDir}addresses.json`, JSON.stringify(addresses));
