@@ -1,0 +1,17 @@
+{
+    "mainnet": {
+        "pegusd_token": "0x2836d432aAED46402866C092ac085638ab3C2051",
+        "stable_token": "0x51C4c6E0cF5d606A75a6c476ECd8857345e24b4E",
+        "registry": "0xe68EbDA2488c213cF4ba25a7A7da179f96CE0Baf",
+        "vaultA": "0x45d3Bdc2Cf8C3F5D6Ed8dFA7Db521B52fa5A816d",
+        "vaultB": "0xbBc3E8EeBFFdf7863abdBdEFFF910C8526E7C4D5",
+        "pegSettings": "0xaE52bEAE7898791840C9Ad4016c0298A9Ee230De",
+        "pegLogic": "0x3f8629041899B10Ce9ebF2987cEE190351Fcf241",
+        "logicActions": "0x3ef68Ea84fa57e8Ff8C1B3b113e9dD244Db8e77D",
+        "auctionActions": "0x21F437DD24A72F8BB3844060260213dd6c5Ac77C",
+        "oracle": "0xE6153B93cdB9E796937Da26D88Aae0071aF7a0c5",
+        "ids": "0xDa3EbbD0d5b0bde8cA9027C1B7839cAE6Ee50f6a",
+        "relay": "0x85A2D8248EFd1d66eA11564fCd6304820F1d0F1D",
+        "multisigwallet": "0x438F5173b9974728B034a7339e35ddFBB97934cE"
+    }
+}
