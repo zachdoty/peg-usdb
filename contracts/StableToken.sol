@@ -35,6 +35,16 @@ contract StableToken is ERC20Token, ContractIds {
         _;
     }
 
+    function setName(string _name) public authOnly {
+        require(bytes(_name).length > 0); // validate input
+        name = _name;
+    }
+
+    function setSymbol(string _symbol) public authOnly {
+        require(bytes(_symbol).length > 0); // validate input
+        symbol = _symbol;
+    }
+
     function disableTransfers(bool _disable) public authOnly {
         transfersEnabled = !_disable;
     }
