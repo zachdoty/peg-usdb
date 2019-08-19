@@ -21,15 +21,14 @@ console.log("Deploying to main net...");
 console.log("WARNING: THIS WILL USE REAL ETHER");
 console.log("Press CTRL + C to cancel...");
 
-// const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
-const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://rinkeby.infura.io/v3/" + networks.mainnet.infuraKey);
+const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
 
 const web3 = new Web3(provider);
 
 const contracts = [
     {
         contract: "SmartToken",
-        arguments: ["PEG Network Token", "PEG:USD", 18],
+        arguments: ["PEG:USD Token", "PEG:USD", 18],
         value: 0,
         deployed: "PEGUSDContract"
     },
@@ -53,7 +52,7 @@ const contracts = [
         deployed: "StableTokenContract"
     },
     {
-        contract: "StableToken",
+        contract: "SmartToken",
         arguments: [
             "BUSD-PEGUSD Relay Token",
             "BUSD:PEGUSD",
@@ -363,7 +362,7 @@ const deployTransactions = async () => {
 };
 
 web3.eth.getAccounts().then(async accounts => {
-    web3.eth.defaultAccount = accounts[0];
+    web3.eth.defaultAccount = '0xfaf8745B34A2bA14f181748817544F9D78ef12b6';
     await deployContracts();
     await deployTransactions();
 
