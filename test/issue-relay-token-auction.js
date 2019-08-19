@@ -1,13 +1,14 @@
 const utils = require('./utils');
 const Auction = artifacts.require("Auction");
 
-contract("auction vault A test", (accounts) => {
+contract("issue relay token on auction test", (accounts) => {
 
     before(async () => {
         contracts = await utils.contracts(accounts);
         PegLogicContract = contracts.BUSD_Contracts.pegLogic;
         LogicActionsContract = contracts.BUSD_Contracts.logicActions;
         AuctionActionsContract = contracts.BUSD_Contracts.auctionActions;
+        RelayTokenContract = contracts.RelayTokenContract;
         VaultContract = contracts.BUSD_Contracts.vaultA;
         StableTokenContract = contracts.BUSD_Contracts.stableToken;
         OracleContract = contracts.BUSD_Contracts.oracle;
@@ -17,15 +18,23 @@ contract("auction vault A test", (accounts) => {
         bidders = [
             {
                 amount: 10,
+                relayAmount: 100,
                 address: accounts[2]
             },
             {
                 amount: 20,
+                relayAmount: 50,
                 address: accounts[3]
             },
             {
                 amount: 20,
+                relayAmount: 50,
                 address: accounts[4]
+            },
+            {
+                amount: 20,
+                relayAmount: 20,
+                address: accounts[5]
             },
         ];
     });
@@ -75,6 +84,8 @@ contract("auction vault A test", (accounts) => {
         assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[1].address)) / 1e18);
         await StableTokenContract.issue(bidders[2].address, 100 * 1e18);
         assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[2].address)) / 1e18);
+        await StableTokenContract.issue(bidders[3].address, 100 * 1e18);
+        assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[3].address)) / 1e18);
     });
 
     it("should throw error when vault is not yet for liquidation", async () => {
@@ -128,21 +139,39 @@ contract("auction vault A test", (accounts) => {
         AuctionContract = await Auction.at(auctionAddress);
         assert.equal(0, Number(await AuctionContract.auctionEndTime.call()), 'incorrect auction time');
         assert.equal(0, Number(await StableTokenContract.balanceOf.call(AuctionContract.address)), 'Invalid auction contract debt token balance');
+
+        await StableTokenContract.approve(AuctionContract.address, 1000*1e18, {from:bidders[0].address});
+        await StableTokenContract.approve(AuctionContract.address, 1000*1e18, {from:bidders[1].address});
+        await StableTokenContract.approve(AuctionContract.address, 1000*1e18, {from:bidders[2].address});
+        await StableTokenContract.approve(AuctionContract.address, 1000*1e18, {from:bidders[3].address});
+    });
+
+    it("should throw error when bidding with collateral and relay token", async () => {
+        try {
+            let bidAmount = bidders[2].amount;
+            let bidder = bidders[2].address;
+            await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
+            await AuctionContract.bid(bidAmount * 1e18, 100*1e18, {from: bidder});
+            assert(false, "didn't throw");
+        } catch (error) {
+            return utils.ensureException(error);
+        }
     });
 
     it("should place bid, enabled auction time and pay the auction debt", async () => {
         assert.equal(Number(await AuctionContract.highestBid.call())/1e18, 0, 'incorrect auction initial highest bid amount');
         let initialTotalActualDebt = Number(await PegLogicContract.totalActualDebt.call(VaultContract.address));
-        let bidAmount = bidders[0].amount;
+        let bidAmount = bidders[0].relayAmount;
         let bidder = bidders[0].address;
         lastBidder = bidders[0].address;
-        await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder})
-        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
+        let res = await AuctionContract.bid(0, bidAmount*1e18, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
-        assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
+        assert.equal(Number(res.logs[0].args._amount)/1e18, 0, 'incorrect event bid amount');
+        assert.equal(Number(res.logs[0].args._amountRelay)/1e18, bidAmount, 'incorrect event bid relay amount');
         assert.equal((await AuctionContract.highestBidder.call()).toLowerCase(), bidder.toLowerCase(), 'incorrect auction highest bidder address');
-        assert.equal(Number(await AuctionContract.highestBid.call())/1e18, bidAmount, 'incorrect auction highest bid amount');
+        assert.equal(Number(await AuctionContract.highestBid.call())/1e18, 0, 'incorrect auction highest bid amount');
+        assert.equal(Number(await AuctionContract.lowestBidRelay.call())/1e18, bidAmount, 'incorrect auction lowest bid relay amount');
 
         let finalTotalActualDebt = Number(await PegLogicContract.totalActualDebt.call(VaultContract.address));
         assert.equal(finalTotalActualDebt, (initialTotalActualDebt - actualDebt), 'incorrect total actual debt');
@@ -179,34 +208,27 @@ contract("auction vault A test", (accounts) => {
         }
     });
 
-    it("should outbid current highest bid and transfer previous bid token to previous highest bidder", async () => {
-        let bidAmount = bidders[1].amount;
+    it("should outbid current lowest relay bid amount and transfer previous bid token to previous highest bidder", async () => {
+        let bidAmount = bidders[1].relayAmount;
         let bidder = bidders[1].address;
-        await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
-        let res = await AuctionContract.bid(bidAmount*1e18, 0, {from: bidder});
+        let res = await AuctionContract.bid(0, bidAmount*1e18, {from: bidder});
         assert(res.logs.length > 0 && res.logs[0].event == 'HighestBidIncreased', 'incorrect event name');
         assert.equal(res.logs[0].args._bidder.toLowerCase(), bidder.toLowerCase(), 'incorrect event bidder address');
-        assert.equal(Number(res.logs[0].args._amount)/1e18, bidAmount, 'incorrect event bid amount');
+        assert.equal(Number(res.logs[0].args._amount)/1e18, 0, 'incorrect event bid amount');
+        assert.equal(Number(res.logs[0].args._amountRelay)/1e18, bidAmount, 'incorrect event relay token bid amount');
         assert.equal((await AuctionContract.highestBidder.call()).toLowerCase(), bidder.toLowerCase(), 'incorrect auction highest bidder address');
-        assert.equal(Number(await AuctionContract.highestBid.call())/1e18, bidAmount, 'incorrect auction highest bid amount');
+        assert.equal(Number(await AuctionContract.highestBid.call())/1e18, 0, 'incorrect auction highest bid amount');
+        assert.equal(Number(await AuctionContract.lowestBidRelay.call())/1e18, bidAmount, 'incorrect auction lowest relay bid amount');
         assert.equal(Number(await StableTokenContract.balanceOf.call(lastBidder)), (lastBidderDebtTokenBalance + actualDebt), 'incorrect last bidder debt token balance');
+
+        lastBidderDebtTokenBalance = Number(await StableTokenContract.balanceOf.call(bidder));
     });
 
-    it("should have throw error when calling bid with low or equal amount than current highest bid", async () => {
+    it("should have throw error when calling bid with high or equal amount than current lowest bid relay amount", async () => {
         try {
-            let bidAmount = bidders[2].amount;
+            let bidAmount = bidders[2].relayAmount;
             let bidder = bidders[2].address;
-            await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
-            await AuctionContract.bid(bidAmount * 1e18, 0, {from: bidder});
-            assert(false, "didn't throw");
-        } catch (error) {
-            return utils.ensureException(error);
-        }
-    });
-
-    it("should have throw error when calling auction end before time is not due", async () => {
-        try {
-            await AuctionContract.auctionEnd();
+            await AuctionContract.bid(0, bidAmount * 1e18, {from: bidder});
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
@@ -219,7 +241,36 @@ contract("auction vault A test", (accounts) => {
         await web3.currentProvider.send({
             jsonrpc: "2.0",
             method: "evm_increaseTime",
-            params: [10805], // 1 hour
+            params: [10805],
+            id: Date.now() + 1
+        });
+        await web3.currentProvider.send({
+            jsonrpc: "2.0",
+            method: "evm_mine",
+            id: Date.now() + 2
+        });
+        const laterBlock = web3.eth.blockNumber;
+        const laterTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
+        assert((initialTime + 10805) <= laterTime, 'evm time not advanced');
+        assert.isBelow(initialBlock, laterBlock, 'initialBlock is above laterBlock');
+    });
+
+    it("should have throw error when calling auction end before time is not due", async () => {
+        try {
+            await AuctionContract.auctionEnd();
+            assert(false, "didn't throw");
+        } catch (error) {
+            return utils.ensureException(error);
+        }
+    });
+
+    it(`should advance evm time 45 hours and 5 seconds`, async () => {
+        const initialBlock = web3.eth.blockNumber;
+        const initialTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
+        await web3.currentProvider.send({
+            jsonrpc: "2.0",
+            method: "evm_increaseTime",
+            params: [162005],
             id: Date.now() + 1
         });
         await web3.currentProvider.send({
@@ -234,6 +285,7 @@ contract("auction vault A test", (accounts) => {
     });
 
     it("should end auction", async () => {
+        let lowestBidRelay = Number(await AuctionContract.lowestBidRelay.call());
         let highestBid = Number(await AuctionContract.highestBid.call());
         let highestBidder = await AuctionContract.highestBidder.call();
     
@@ -249,19 +301,8 @@ contract("auction vault A test", (accounts) => {
         assert.equal(utils.zeroAddress, await VaultContract.auctions.call(vault), 'auction address was not set to empty');
         assert.equal(rawBalanceOf_borrower_before + highestBid, rawBalanceOf_borrower_after, 'incorrect borrower raw balance value');
         assert.equal(rawBalanceOf_bidder_before + (rawBalanceOf_auction - highestBid), rawBalanceOf_bidder_after, 'incorrect bidder raw balance value');
-    });
 
-    it("should be able to borrow again", async () => {
-        totalCredit = Number(await PegLogicContract.availableCredit.call(VaultContract.address, vault));
-        amountBorrowed = (totalCredit * 0.95);
-        assert.isAbove(totalCredit, amountBorrowed, 'total credit is below amount to be borrowed');
-        await LogicActionsContract.borrow(VaultContract.address, amountBorrowed, {
-            from: user
-        });
-        let newAvailableCredit = Number(await PegLogicContract.availableCredit.call(VaultContract.address, vault));
-        assert.equal(newAvailableCredit, (totalCredit * 0.05), "wrong newAvailableCredit");
-        assert.equal(amountBorrowed, Number(await PegLogicContract.actualDebt.call(VaultContract.address, vault)), 'actual debt is not equal to what is borrowed');
-        assert.equal(amountBorrowed, Number(await VaultContract.totalBorrowed.call(vault)), 'vault total borrowed is not equal to what is borrowed');
+        assert.equal(lowestBidRelay, Number(await RelayTokenContract.balanceOf.call(highestBidder)), "incorrect relay token amount");
     });
 
 })

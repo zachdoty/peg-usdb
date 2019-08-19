@@ -97,7 +97,7 @@ contract("scaling vault A year test", accounts => {
             from: admin
         });
         assert.equal(Number(await VaultContract.amountMinted.call()), mintableAmount, 'amount minted is not equal to mintable amount');
-        assert.equal(Number(await StableTokenContract.balanceOf.call(accounts[9])), mintableAmount, 'incorrect stable token balance of stability fee recipient');
+        assert.equal(Number(await StableTokenContract.balanceOf.call(contracts.ConverterContract.address)), mintableAmount, 'incorrect stable token balance of stability fee recipient');
         mintableAmount = Number(await PegLogicContract.mintableAmount.call(VaultContract.address));
         assert.equal(mintableAmount, 0, 'mintable amount is not equal to 0');
     });

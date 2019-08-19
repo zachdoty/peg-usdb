@@ -5,12 +5,10 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 const networks = require("./networks.json");
 const utils = require("./utils");
 
-let gasPrice = process.argv[3] * 1e9;
-let network = process.argv[2];
-let provider = new Web3.providers.HttpProvider("http://localhost:8545");
+let gasPrice = process.argv[2] * 1e9;
 let deployedContracts = {};
 
-if (!process.argv[3]) {
+if (!process.argv[2]) {
     gasPrice = 22;
 } else if (gasPrice < 1e8) {
     console.log("WARNING: GAS PRICE DANGEROUSLY LOW. TRANSACTIONS MAY NEVER GO THROUGH");
@@ -19,49 +17,21 @@ if (!process.argv[3]) {
 }
 console.log("Gas price: " + gasPrice + " Gwei");
 
-if (process.argv[2] == "ropsten") {
-    console.log("Deploying to Ropsten...");
-    provider = new HDWalletProvider(networks.ropsten.mnemonic, "https://ropsten.infura.io/v3/" + networks.ropsten.infuraKey);
-} else if (process.argv[2] == "rinkeby") {
-    console.log("Deploying to Rinkeby...");
-    provider = new HDWalletProvider(networks.rinkeby.mnemonic, "https://rinkeby.infura.io/v3/" + networks.rinkeby.infuraKey);
-}  else if (process.argv[2] == "kovan") {
-    console.log("Deploying to Kovan...");
-    provider = new HDWalletProvider(networks.kovan.mnemonic, "https://kovan.infura.io/v3/" + networks.kovan.infuraKey);
-} else if (process.argv[2] == "mainnet") {
-    console.log("Deploying to main net...");
-    console.log("WARNING: THIS WILL USE REAL ETHER");
-    console.log("Press CTRL + C to cancel...");
-    provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
-} else if (process.argv[2] == "demo") {
-    console.log("Deploying to demo network...");
-} else if (process.argv[2] == "dev") {
-    console.log("Deploying to dev network...");
-} else {
-    console.log("Deploying to local ganache...");
-    network = "local";
-}
+console.log("Deploying to main net...");
+console.log("WARNING: THIS WILL USE REAL ETHER");
+console.log("Press CTRL + C to cancel...");
+
+// const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://mainnet.infura.io/v3/" + networks.mainnet.infuraKey);
+const provider = new HDWalletProvider(networks.mainnet.mnemonic, "https://rinkeby.infura.io/v3/" + networks.mainnet.infuraKey);
 
 const web3 = new Web3(provider);
 
 const contracts = [
     {
-        contract: "TokenFaucet",
-        arguments: [],
-        value: 0,
-        deployed: "TokenFaucetContract"
-    },
-    {
         contract: "SmartToken",
         arguments: ["PEG Network Token", "PEG:USD", 18],
         value: 0,
         deployed: "PEGUSDContract"
-    },
-    {
-        contract: "SmartToken",
-        arguments: ["Bancor Network Token", "BNT", 18],
-        value: 0,
-        deployed: "CollateralTokenContract"
     },
     {
         contract: "ContractRegistry",
@@ -85,8 +55,8 @@ const contracts = [
     {
         contract: "StableToken",
         arguments: [
-            "PEGUSD-BUSD Relay Token",
-            "PEGUSD:BUSD",
+            "BUSD-PEGUSD Relay Token",
+            "BUSD:PEGUSD",
             18,
             () => {
                 return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;
@@ -158,27 +128,21 @@ const contracts = [
         deployed: "ContractIdsContract"
     },
     {
-        contract: "BancorConverter",
-        arguments: [
-            () => {
-                return deployedContracts["RelayTokenContract"] ? deployedContracts["RelayTokenContract"].options.address : null;
-            }
-        ],
-        value: 0,
-        deployed: "ConverterContract"
-    },
-    {
         contract: "PegSettings",
         arguments: [
+            () => {
+                return [web3.eth.defaultAccount]
+            },
             () => {
                 return [
                     deployedContracts["PegLogicContract"] ? deployedContracts["PegLogicContract"].options.address : null,
                     deployedContracts["LogicActionsContract"] ? deployedContracts["LogicActionsContract"].options.address : null,
                     deployedContracts["AuctionActionsContract"] ? deployedContracts["AuctionActionsContract"].options.address : null,
                     deployedContracts["VaultAContract"] ? deployedContracts["VaultAContract"].options.address : null,
-                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null,
+                    deployedContracts["VaultBContract"] ? deployedContracts["VaultBContract"].options.address : null
                 ]
-            }
+            },
+
         ],
         value: 0,
         deployed: "PegSettingsContract"
@@ -208,28 +172,6 @@ const transactions = [
         value: 0
     },
     {
-        deployed: "CollateralTokenContract",
-        function: "issue",
-        arguments: [
-            () => {
-                return deployedContracts["TokenFaucetContract"] ? deployedContracts["TokenFaucetContract"].options.address : null;
-            },
-            web3.utils.toWei('1000000', 'ether')
-        ],
-        value: 0
-    },
-    {
-        deployed: "PEGUSDContract",
-        function: "issue",
-        arguments: [
-            () => {
-                return deployedContracts["TokenFaucetContract"] ? deployedContracts["TokenFaucetContract"].options.address : null;
-            },
-            web3.utils.toWei('1000000', 'ether')
-        ],
-        value: 0
-    },
-    {
         deployed: "InstanceRegistryContract",
         function: "registerAddress",
         arguments: [
@@ -237,7 +179,7 @@ const transactions = [
                 return deployedContracts["ContractIdsContract"] ? await deployedContracts["ContractIdsContract"].methods.COLLATERAL_TOKEN().call() : null;
             },
             () => {
-                return deployedContracts["CollateralTokenContract"] ? deployedContracts["CollateralTokenContract"].options.address : null;
+                return '0x1f573d6fb3f13d689ff844b4ce37794d79a7ff1c'
             }
         ],
         value: 0
@@ -360,51 +302,27 @@ const transactions = [
         value: 0
     },
     {
-        deployed: "InstanceRegistryContract",
-        function: "registerAddress",
-        arguments: [
-            async () => {
-                return deployedContracts["ContractIdsContract"] ? await deployedContracts["ContractIdsContract"].methods.FEE_RECIPIENT().call() : null;
-            },
-            () => {
-                return deployedContracts["ConverterContract"] ? deployedContracts["ConverterContract"].options.address : null;
-            }
-        ],
-        value: 0
-    },
-    {
-        deployed: "StableTokenContract",
-        function: "issue",
-        arguments: [
-            () => {
-                return deployedContracts["TokenFaucetContract"] ? deployedContracts["TokenFaucetContract"].options.address : null;
-            },
-            web3.utils.toWei('1000000', 'ether')
-        ],
-        value: 0
-    },
-    {
         deployed: "StableTokenContract",
         function: "issue",
         arguments: [
             () => {
                 return web3.eth.defaultAccount;
             },
-            web3.utils.toWei('1000000', 'ether')
+            web3.utils.toWei('10000', 'ether')
         ],
         value: 0
     },
     {
-        deployed: "CollateralTokenContract",
+        deployed: "PEGUSDContract",
         function: "issue",
         arguments: [
             () => {
                 return web3.eth.defaultAccount;
             },
-            web3.utils.toWei('1000000', 'ether')
+            web3.utils.toWei('10000', 'ether')
         ],
         value: 0
-    }
+    },
 ];
 
 const rootDir = __dirname.replace("deploy", "");
@@ -450,11 +368,10 @@ web3.eth.getAccounts().then(async accounts => {
     await deployTransactions();
 
     let addresses = {};
-    if (fs.existsSync(`${rootDir}addresses.json`)) {
-        addresses = require(`${rootDir}addresses.json`);
+    if (fs.existsSync(`${rootDir}mainnet-addresses.json`)) {
+        addresses = require(`${rootDir}mainnet-addresses.json`);
     }
-    addresses[network] = {
-        collateral_token: deployedContracts["CollateralTokenContract"].options.address,
+    addresses['mainnet'] = {
         pegusd_token: deployedContracts["PEGUSDContract"].options.address,
         stable_token: deployedContracts["StableTokenContract"].options.address,
         registry: deployedContracts["InstanceRegistryContract"].options.address,
@@ -466,11 +383,10 @@ web3.eth.getAccounts().then(async accounts => {
         auctionActions: deployedContracts["AuctionActionsContract"].options.address,
         oracle: deployedContracts["OracleContract"].options.address,
         ids: deployedContracts["ContractIdsContract"].options.address,
-        faucet: deployedContracts["TokenFaucetContract"].options.address,
         relay: deployedContracts["RelayTokenContract"].options.address,
         multisigwallet: deployedContracts["MultiSigWalletContract"].options.address,
     };
 
-    fs.writeFileSync(`${rootDir}addresses.json`, JSON.stringify(addresses));
+    fs.writeFileSync(`${rootDir}mainnet-addresses.json`, JSON.stringify(addresses));
     console.log("Deploy completed...");
 });

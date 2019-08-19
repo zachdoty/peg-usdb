@@ -78,7 +78,7 @@ contract("Instance Registry test", (accounts) => {
             "Incorrect oracle address"
         );
         assert.equal(
-            accounts[9],
+            contracts.ConverterContract.address,
             await contracts.BUSD_InstanceRegistryContract.addressOf(
                 await contracts.ContractIdsContract.FEE_RECIPIENT.call()
             ),

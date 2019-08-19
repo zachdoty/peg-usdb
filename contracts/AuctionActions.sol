@@ -1,14 +1,15 @@
 pragma solidity ^0.4.23;
 
-import "./Helpers.sol";
-import "./library/AntiERC20Sink.sol";
 import "./library/SafeMath.sol";
 import "./interfaces/IAuction.sol";
 import "./interfaces/IPegLogic.sol";
-import "./Auction.sol";
 import "./interfaces/IVault.sol";
+import "./interfaces/IStableToken.sol";
+import "./interfaces/IBancorConverter.sol";
+import "./Auction.sol";
+import "./Helpers.sol";
 
-contract AuctionActions is AntiERC20Sink, Helpers {
+contract AuctionActions is Helpers {
 
     using SafeMath for uint256;
     using SafeMath for int256;
@@ -53,6 +54,11 @@ contract AuctionActions is AntiERC20Sink, Helpers {
             _vault.rawBalanceOf(highestBidder).plus(_vault.rawBalanceOf(auctionAddress).minus(highestBid))
         );
         _vault.setRawBalanceOf(_borrower, _vault.rawBalanceOf(_borrower).plus(highestBid));
+        if(auction.lowestBidRelay() > 0) {
+            IBancorConverter converter = IBancorConverter(registry.addressOf(ContractIds.FEE_RECIPIENT));
+            IStableToken relayToken = IStableToken(converter.token());
+            relayToken.issue(highestBidder, auction.lowestBidRelay());
+        }
         pegLogic().adjustCollateralBorrowingRate();
         _vault.setRawBalanceOf(auctionAddress, 0);
         _vault.emitAuctionEnded(_borrower, highestBidder, highestBid);

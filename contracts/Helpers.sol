@@ -65,4 +65,8 @@ contract Helpers is ContractIds {
         return IAuctionActions(registry.addressOf(ContractIds.AUCTION_ACTIONS));
     }
 
+    function transferERC20Token(IERC20Token _token, address _to, uint256 _amount) public authOnly {
+        _token.transfer(_to, _amount);
+    }
+
 }

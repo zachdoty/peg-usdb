@@ -6,6 +6,7 @@ contract IAuction {
 
     function highestBidder() public view returns (address);
     function highestBid() public view returns (uint256);
+    function lowestBidRelay() public view returns (uint256);
 
     function bid(uint256 _amount) public;
     function auctionEnd() public;

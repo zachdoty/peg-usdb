@@ -1,13 +1,12 @@
 pragma solidity ^0.4.23;
 
 import "./Helpers.sol";
-import "./library/AntiERC20Sink.sol";
 import "./library/SafeMath.sol";
 import "./interfaces/IPegLogic.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IERC20Token.sol";
 
-contract LogicActions is AntiERC20Sink, Helpers {
+contract LogicActions is Helpers {
 
     using SafeMath for uint256;
     using SafeMath for int256;
@@ -20,8 +19,7 @@ contract LogicActions is AntiERC20Sink, Helpers {
 
     function deposit(IVault _vault, uint256 _amount) public validate(_vault, msg.sender) {
         IERC20Token vaultCollateralToken = pegLogic().getCollateralToken(_vault);
-        vaultCollateralToken.transferFrom(msg.sender, address(this), _amount);
-        vaultCollateralToken.transfer(address(_vault), _amount);
+        vaultCollateralToken.transferFrom(msg.sender, address(_vault), _amount);
         _vault.setRawBalanceOf(
             msg.sender,
             _vault.rawBalanceOf(msg.sender).plus(_vault.balanceActualToRaw(_amount))
@@ -36,7 +34,6 @@ contract LogicActions is AntiERC20Sink, Helpers {
     function withdraw(IVault _vault, address _to, uint256 _amount) public validate(_vault, msg.sender) {
         IPegLogic ipegLogic = pegLogic();
         require(_amount.toInt256() <= ipegLogic.excessCollateral(_vault, msg.sender), "Insufficient collateral balance");
-        _vault.transferERC20Token(ipegLogic.getCollateralToken(_vault), _to, _amount);
         _vault.setRawBalanceOf(
             msg.sender,
             _vault.rawBalanceOf(msg.sender).minus(_vault.balanceActualToRaw(_amount))
@@ -44,6 +41,7 @@ contract LogicActions is AntiERC20Sink, Helpers {
         _vault.setRawTotalBalance(
             _vault.rawTotalBalance().minus(_vault.balanceActualToRaw(_amount))
         );
+        _vault.transferERC20Token(ipegLogic.getCollateralToken(_vault), _to, _amount);
         ipegLogic.adjustCollateralBorrowingRate();
         _vault.emitWithdraw(msg.sender, _to, _amount);
     }
@@ -71,8 +69,7 @@ contract LogicActions is AntiERC20Sink, Helpers {
         if (address(_vault) == address(vaultA())) {
             vaultDebtToken.destroy(_payor, _amount);
         } else {
-            vaultDebtToken.transferFrom(_payor, address(this), _amount);
-            vaultDebtToken.transfer(address(vaultA()), _amount);
+            vaultDebtToken.transferFrom(_payor, address(vaultA()), _amount);
         }
         _vault.setRawTotalDebt(_vault.rawTotalDebt().minus(_vault.debtActualToRaw(_amount)));
 
@@ -91,7 +88,7 @@ contract LogicActions is AntiERC20Sink, Helpers {
         doPay(_vault, msg.sender, _borrower, _amount, false);
     }
 
-    function repayAuction(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower) 
+    function repayAuction(IVault _vault, address _borrower, uint256 _amount) public validate(_vault, _borrower)
     {
         require(_vault.auctions(_borrower) == msg.sender, "Invalid auction");
         doPay(_vault, msg.sender, msg.sender, _amount, true);
