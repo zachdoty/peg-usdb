@@ -146,10 +146,31 @@ const contracts = [
         ],
         value: 0,
         deployed: "PegSettingsContract"
-    }
+    },
+    {
+        contract: "MultiSigWallet",
+        arguments: [
+            () => {
+                return [web3.eth.defaultAccount]
+            },
+            1
+        ],
+        value: 0,
+        deployed: "MultiSigWalletContract"
+    },
 ];
 
 const transactions = [
+    {
+        deployed: "PegSettingsContract",
+        function: "setOwner",
+        arguments: [
+            () => {
+                return deployedContracts["MultiSigWalletContract"] ? deployedContracts["MultiSigWalletContract"].options.address : null;
+            }
+        ],
+        value: 0
+    },
     {
         deployed: "InstanceRegistryContract",
         function: "registerAddress",
@@ -362,7 +383,8 @@ web3.eth.getAccounts().then(async accounts => {
         auctionActions: deployedContracts["AuctionActionsContract"].options.address,
         oracle: deployedContracts["OracleContract"].options.address,
         ids: deployedContracts["ContractIdsContract"].options.address,
-        relay: deployedContracts["RelayTokenContract"].options.address
+        relay: deployedContracts["RelayTokenContract"].options.address,
+        multisigwallet: deployedContracts["MultiSigWalletContract"].options.address,
     };
 
     fs.writeFileSync(`${rootDir}mainnet-addresses.json`, JSON.stringify(addresses));

@@ -5,11 +5,12 @@ contract("PegSettings test", (accounts) => {
     before(async () => {
         contracts = await utils.contracts(accounts);
         PegSettings = contracts.BUSD_Contracts.pegSettings;
+        MultiSigWallet = contracts.MultiSigWalletContract;
     });
 
-    it("should have correct signers", async() => {
-        for(let i = 0; i < contracts.Signers.length; i++) {
-            assert.equal(true, await PegSettings.isSigner.call(contracts.Signers[i]), "Incorrect signer");
+    it("should have correct owners", async() => {
+        for(let i = 0; i < contracts.Owners.length; i++) {
+            assert.equal(true, await MultiSigWallet.isOwner.call(contracts.Owners[i]), "Incorrect owner");
         }
     });
 
@@ -19,52 +20,58 @@ contract("PegSettings test", (accounts) => {
         }
     });
 
-    it("should throw error when sender is not one of the signers", async () => {
+    it("should throw error when sender is not one of the owner", async () => {
         try {
-            await PegSettings.authorize(accounts[9], true, { from: accounts[9] });
+            const data = PegSettings.contract.authorize.getData(accounts[9], true);
+            await MultiSigWallet.submitTransaction(PegSettings.address, 0, data, { from: accounts[9] });
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
         }
     });
 
-    it("should throw error when sender has already voted on an address authorization action", async () => {
+    it("should throw error when sender has already confirmed on an address authorization action", async () => {
         assert.equal(false, await PegSettings.authorized.call(accounts[8]), "Authorized");
+        const data = PegSettings.contract.authorize.getData(accounts[8], true);
+        await MultiSigWallet.submitTransaction(PegSettings.address, 0, data, { from: contracts.Owners[0] });
+        const txCount = await MultiSigWallet.transactionCount.call();
         try {
-            await PegSettings.authorize(accounts[8], true, { from: contracts.Signers[0] });
-            await PegSettings.authorize(accounts[8], true, { from: contracts.Signers[0] });
+            await MultiSigWallet.confirmTransaction((txCount - 1), { from: contracts.Owners[0] });
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
         }
     });
 
-    it("should throw error when sender has already voted on an address unauthorization action", async () => {
-        assert.equal(false, await PegSettings.authorized.call(accounts[7]), "Authorized");
-        await PegSettings.authorize(accounts[7], true, { from: contracts.Signers[0] });
-        await PegSettings.authorize(accounts[7], true, { from: contracts.Signers[1] });
-        assert.equal(true, await PegSettings.authorized.call(accounts[7]), "Not Authorized");
+    it("should authorization an address", async () => {
+        assert.equal(false, await PegSettings.authorized.call(accounts[8]), "Authorized");
+        const data = PegSettings.contract.authorize.getData(accounts[8], true);
+        await MultiSigWallet.submitTransaction(PegSettings.address, 0, data, { from: contracts.Owners[0] });
+        const txCount = await MultiSigWallet.transactionCount.call();
+        await MultiSigWallet.confirmTransaction((txCount - 1), { from: contracts.Owners[1] });
+        assert.equal(true, await PegSettings.authorized.call(accounts[8]), "Unauthorized");
+    });
+
+    it("should throw error when sender has already confirmed on an address unauthorization action", async () => {
+        assert.equal(true, await PegSettings.authorized.call(accounts[8]), "Unauthorized");
+        const data = PegSettings.contract.authorize.getData(accounts[8], false);
+        await MultiSigWallet.submitTransaction(PegSettings.address, 0, data, { from: contracts.Owners[0] });
+        const txCount = await MultiSigWallet.transactionCount.call();
         try {
-            await PegSettings.authorize(accounts[7], true, { from: contracts.Signers[0] });
-            await PegSettings.authorize(accounts[7], true, { from: contracts.Signers[0] });
+            await MultiSigWallet.confirmTransaction((txCount - 1), { from: contracts.Owners[0] });
             assert(false, "didn't throw");
         } catch (error) {
             return utils.ensureException(error);
         }
     });
 
-    it("should authorized an address", async() => {
-        assert.equal(false, await PegSettings.authorized.call(accounts[9]), "Authorized");
-        await PegSettings.authorize(accounts[9], true, { from: contracts.Signers[0] });
-        await PegSettings.authorize(accounts[9], true, { from: contracts.Signers[1] });
-        assert.equal(true, await PegSettings.authorized.call(accounts[9]), "Not Authorized");
-    });
-
-    it("should unauthorized an address", async() => {
-        assert.equal(true, await PegSettings.authorized.call(accounts[9]), "Not Authorized");
-        await PegSettings.authorize(accounts[9], false, { from: contracts.Signers[0] });
-        await PegSettings.authorize(accounts[9], false, { from: contracts.Signers[1] });
-        assert.equal(false, await PegSettings.authorized.call(accounts[9]), "Authorized");
+    it("should unauthorization an address", async () => {
+        assert.equal(true, await PegSettings.authorized.call(accounts[8]), "Unauthorized");
+        const data = PegSettings.contract.authorize.getData(accounts[8], false);
+        await MultiSigWallet.submitTransaction(PegSettings.address, 0, data, { from: contracts.Owners[0] });
+        const txCount = await MultiSigWallet.transactionCount.call();
+        await MultiSigWallet.confirmTransaction((txCount - 1), { from: contracts.Owners[1] });
+        assert.equal(false, await PegSettings.authorized.call(accounts[8]), "Authorized");
     });
 
 })
