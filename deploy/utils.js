@@ -44,7 +44,7 @@ const deployContract = async (gasPrice, contractInfo, web3) => {
 };
 
 const doDeployTransaction = (gasPrice, contractInstance, transactionInfo, args, gas, web3) => {
-    return new Promise((reject, resolve) => {
+    return new Promise((resolve, reject) => {
         contractInstance.methods[transactionInfo.function](...args)
             .send({
                 from: web3.eth.defaultAccount,
