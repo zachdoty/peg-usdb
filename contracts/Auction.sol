@@ -33,24 +33,20 @@ contract Auction is ContractIds {
         _;
     }
 
-    modifier auctionActive() {
+    function validateBid(uint256 _amount, uint256 _amountRelay) internal view {
         if(auctionEndTime > 0)
             require(now <= auctionEndTime, "Auction has already ended");
         else {
             auctionStartTime = now;
             auctionEndTime = now + vault.biddingTime();
         }
-        _;
-    }
-
-    function validateBid(uint256 _amount, uint256 _amountRelay) internal view {
         require(_amount == 0 || _amountRelay == 0, "Can't refund collateral and mint relay tokens");
         if(highestBidder != address(0))
             require(_amount > highestBid || _amountRelay < lowestBidRelay, "There already is a higher bid");
         require(vault.balanceActualToRaw(_amount) <= vault.rawBalanceOf(address(this)), "Can't refund more than 100%");
     }
 
-    function bid(uint256 _amount, uint256 _amountRelay) public auctionActive {
+    function bid(uint256 _amount, uint256 _amountRelay) public {
         validateBid(_amount, _amountRelay);
         if(_amountRelay > 0)
             auctionEndTime = auctionStartTime + 172800; // extends to 48 hours auction
