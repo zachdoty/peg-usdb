@@ -1,17 +1,17 @@
 {
     "mainnet": {
-        "pegusd_token": "0x2836d432aAED46402866C092ac085638ab3C2051",
-        "stable_token": "0x51C4c6E0cF5d606A75a6c476ECd8857345e24b4E",
+        "pegusd_token": "0xd758b77BCC792AFD58857E1d5C610aE649FDEE6b",
+        "stable_token": "0xeDF216B3C9748082C2d7F3F54EfE45B41076e3E1",
         "registry": "0xe68EbDA2488c213cF4ba25a7A7da179f96CE0Baf",
-        "vaultA": "0x45d3Bdc2Cf8C3F5D6Ed8dFA7Db521B52fa5A816d",
-        "vaultB": "0xbBc3E8EeBFFdf7863abdBdEFFF910C8526E7C4D5",
-        "pegSettings": "0xaE52bEAE7898791840C9Ad4016c0298A9Ee230De",
-        "pegLogic": "0x3f8629041899B10Ce9ebF2987cEE190351Fcf241",
-        "logicActions": "0x3ef68Ea84fa57e8Ff8C1B3b113e9dD244Db8e77D",
-        "auctionActions": "0x21F437DD24A72F8BB3844060260213dd6c5Ac77C",
+        "vaultA": "0xf1A5C3EDA198BD3eE097Ac4b8340E4d47C9D4679",
+        "vaultB": "0xD52C69b636a8b6E924347a617886FdFE5262A9EB",
+        "pegSettings": "0xFB0b0be5748b4aB5CD4BD1927866307c4Ba264A5",
+        "pegLogic": "0x7657ecb6B8D112CaaADb7BC8F06e08d74f84BabB",
+        "logicActions": "0xd4A87059aCd804D5896Ed09cfe86eAF5FE3fF214",
+        "auctionActions": "0xe797D7001e6fD6c54D568a443EAcc80b8b99dE2e",
         "oracle": "0xE6153B93cdB9E796937Da26D88Aae0071aF7a0c5",
         "ids": "0xDa3EbbD0d5b0bde8cA9027C1B7839cAE6Ee50f6a",
-        "relay": "0x85A2D8248EFd1d66eA11564fCd6304820F1d0F1D",
-        "multisigwallet": "0x438F5173b9974728B034a7339e35ddFBB97934cE"
+        "relay": "0xC5204ea5B7AE51c3759b238b4A7dd400778a0231",
+        "multisigwallet": "0x438f5173b9974728b034a7339e35ddfbb97934ce"
     }
 }
