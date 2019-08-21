@@ -4,8 +4,8 @@ import "./interfaces/IContractRegistry.sol";
 import "./interfaces/IPegSettings.sol";
 import "./interfaces/IVault.sol";
 import "./interfaces/IPegOracle.sol";
-import "./interfaces/IStableToken.sol";
 import "./interfaces/IERC20Token.sol";
+import "./interfaces/ISmartToken.sol";
 import "./interfaces/IPegLogic.sol";
 import "./interfaces/IAuctionActions.sol";
 import "./ContractIds.sol";
@@ -29,12 +29,12 @@ contract Helpers is ContractIds {
         _;
     }
 
-    function stableToken() internal returns(IStableToken) {
-        return IStableToken(registry.addressOf(ContractIds.STABLE_TOKEN));
+    function stableToken() internal returns(ISmartToken) {
+        return ISmartToken(registry.addressOf(ContractIds.STABLE_TOKEN));
     }
 
-    function collateralToken() internal returns(IERC20Token) {
-        return IERC20Token(registry.addressOf(ContractIds.COLLATERAL_TOKEN));
+    function collateralToken() internal returns(ISmartToken) {
+        return ISmartToken(registry.addressOf(ContractIds.COLLATERAL_TOKEN));
     }
 
     function PEGUSD() internal returns(IERC20Token) {

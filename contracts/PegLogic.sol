@@ -114,11 +114,11 @@ contract PegLogic is Helpers {
         }
     }
 
-    function getDebtToken(IVault _vault) public view returns(IStableToken) {
+    function getDebtToken(IVault _vault) public view returns(ISmartToken) {
         if (address(_vault) == address(vaultA())) {
             return stableToken();
         } else {
-            return IStableToken(collateralToken());
+            return collateralToken();
         }
     }
 

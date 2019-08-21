@@ -2,7 +2,7 @@ pragma solidity ^0.4.23;
 
 import "./IVault.sol";
 import "./IERC20Token.sol";
-import "./IStableToken.sol";
+import "./ISmartToken.sol";
 
 contract IPegLogic {
 
@@ -12,6 +12,6 @@ contract IPegLogic {
     function excessCollateral(IVault _vault, address _borrower) public view returns (int256);
     function availableCredit(IVault _vault, address _borrower) public view returns (int256);
     function getCollateralToken(IVault _vault) public view returns(IERC20Token);
-    function getDebtToken(IVault _vault) public view returns(IStableToken);
+    function getDebtToken(IVault _vault) public view returns(ISmartToken);
 
 }

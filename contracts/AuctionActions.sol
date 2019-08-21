@@ -4,7 +4,7 @@ import "./library/SafeMath.sol";
 import "./interfaces/IAuction.sol";
 import "./interfaces/IPegLogic.sol";
 import "./interfaces/IVault.sol";
-import "./interfaces/IStableToken.sol";
+import "./interfaces/ISmartToken.sol";
 import "./interfaces/IBancorConverter.sol";
 import "./Auction.sol";
 import "./Helpers.sol";
@@ -56,7 +56,7 @@ contract AuctionActions is Helpers {
         _vault.setRawBalanceOf(_borrower, _vault.rawBalanceOf(_borrower).plus(highestBid));
         if(auction.lowestBidRelay() > 0) {
             IBancorConverter converter = IBancorConverter(registry.addressOf(ContractIds.FEE_RECIPIENT));
-            IStableToken relayToken = IStableToken(converter.token());
+            ISmartToken relayToken = ISmartToken(converter.token());
             relayToken.issue(highestBidder, auction.lowestBidRelay());
         }
         pegLogic().adjustCollateralBorrowingRate();

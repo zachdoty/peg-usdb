@@ -3,14 +3,18 @@ import './ERC20Token.sol';
 import '../interfaces/ISmartToken.sol';
 import './Owned.sol';
 import './TokenHolder.sol';
+import "../interfaces/IContractRegistry.sol";
+import "../interfaces/IPegSettings.sol";
+import "../ContractIds.sol";
 
 /*
     Smart Token v0.3
 
     'Owned' is specified here for readability reasons
 */
-contract SmartToken is ISmartToken, Owned, ERC20Token, TokenHolder {
+contract SmartToken is ISmartToken, Owned, ERC20Token, TokenHolder, ContractIds {
     string public version = '0.3';
+    IContractRegistry public registry;
 
     bool public transfersEnabled = true;    // true if transfer/transferFrom are enabled, false if not
 
@@ -28,11 +32,22 @@ contract SmartToken is ISmartToken, Owned, ERC20Token, TokenHolder {
         @param _symbol     token short symbol, minimum 1 character
         @param _decimals   for display purposes only
     */
-    constructor(string _name, string _symbol, uint8 _decimals)
+    constructor(string _name, string _symbol, uint8 _decimals, IContractRegistry _registry)
         public
         ERC20Token(_name, _symbol, _decimals)
     {
+        registry = _registry;
         emit NewSmartToken(address(this));
+    }
+
+    function isAuth() internal returns(bool) {
+        IPegSettings pegSettings = IPegSettings(registry.addressOf(ContractIds.PEG_SETTINGS));
+        return (pegSettings.authorized(msg.sender) || msg.sender == owner);
+    }
+
+    modifier authOnly() {
+        require(isAuth(), "Forbidden");
+        _;
     }
 
     // allows execution only when transfers aren't disabled
@@ -60,7 +75,7 @@ contract SmartToken is ISmartToken, Owned, ERC20Token, TokenHolder {
     */
     function issue(address _to, uint256 _amount)
         public
-        ownerOnly
+        authOnly
         validAddress(_to)
         notThis(_to)
     {
@@ -79,7 +94,7 @@ contract SmartToken is ISmartToken, Owned, ERC20Token, TokenHolder {
         @param _amount     amount to decrease the supply by
     */
     function destroy(address _from, uint256 _amount) public {
-        require(msg.sender == _from || msg.sender == owner); // validate input
+        require(msg.sender == _from || isAuth()); // validate input
 
         balanceOf[_from] = safeSub(balanceOf[_from], _amount);
         totalSupply = safeSub(totalSupply, _amount);

@@ -65,7 +65,7 @@ contract LogicActions is Helpers {
     }
 
     function doPay(IVault _vault, address _payor, address _borrower, uint256 _amount, bool _all) internal {
-        IStableToken vaultDebtToken = pegLogic().getDebtToken(_vault);
+        ISmartToken vaultDebtToken = pegLogic().getDebtToken(_vault);
         if (address(_vault) == address(vaultA())) {
             vaultDebtToken.destroy(_payor, _amount);
         } else {

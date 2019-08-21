@@ -1,5 +1,4 @@
 const SmartToken = artifacts.require("SmartToken");
-const StableToken = artifacts.require("StableToken");
 const ContractRegistry = artifacts.require("ContractRegistry");
 const ContractIds = artifacts.require("ContractIds");
 const Vault = artifacts.require("Vault");
@@ -24,16 +23,16 @@ const createContracts = async accounts => {
     const owners =  accounts.slice(4, 6);
 
     const RegistryContract = await ContractRegistry.new();
+    const InstanceRegistryContract = await ContractRegistry.new();
 
     const ContractIdsContract = await ContractIds.new();
-    const CollateralTokenContract = await SmartToken.new("Bancor Network Token", "BNT", 18);
-    const PEGUSDTokenContract = await SmartToken.new("PEG Network Token", "PEG:USD", 18);
+    const CollateralTokenContract = await SmartToken.new("Bancor Network Token", "BNT", 18, InstanceRegistryContract.address);
+    const PEGUSDTokenContract = await SmartToken.new("PEG Token", "PEG:USD", 18, InstanceRegistryContract.address);
     await RegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);
     await RegistryContract.registerAddress(await ContractIdsContract.PEGUSD_TOKEN.call(), PEGUSDTokenContract.address);
     
     // BUSD Instance
-    const InstanceRegistryContract = await ContractRegistry.new();
-    const StableTokenContract = await StableToken.new("Bancor USD", "BUSD", 18, InstanceRegistryContract.address);
+    const StableTokenContract = await SmartToken.new("Bancor USD", "BUSD", 18, InstanceRegistryContract.address);
     const VaultAContract = await Vault.new(InstanceRegistryContract.address);
     const VaultBContract = await Vault.new(InstanceRegistryContract.address);
     const PegLogicContract = await PegLogic.new(InstanceRegistryContract.address);
@@ -41,33 +40,34 @@ const createContracts = async accounts => {
     const AuctionActionsContract = await AuctionActions.new(InstanceRegistryContract.address);
     const OracleContract = await Oracle.new();
 
-    const defaultAddresses = [
-        PegLogicContract.address, 
-        LogicActionsContract.address, 
-        AuctionActionsContract.address, 
-        VaultAContract.address, 
-        VaultBContract.address
-    ];
-    const MultiSigWalletContract = await MultiSigWallet.new(owners, owners.length);
-    const PegSettingsContract = await PegSettings.new(defaultAddresses);
-    await PegSettingsContract.setOwner(MultiSigWalletContract.address);
-
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEGUSD_TOKEN.call(), PEGUSDTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.VAULT_A.call(), VaultAContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.VAULT_B.call(), VaultBContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.ORACLE.call(), OracleContract.address);
-    await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_SETTINGS.call(), PegSettingsContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.STABLE_TOKEN.call(), StableTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_LOGIC.call(), PegLogicContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_LOGIC_ACTIONS.call(), LogicActionsContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.AUCTION_ACTIONS.call(), AuctionActionsContract.address);
 
     // RELAY TOKEN
-    const RelayTokenContract = await StableToken.new("PEGUSD:BUSD Relay Token", "PEGUSD:BUSD", 18, InstanceRegistryContract.address);
+    const RelayTokenContract = await SmartToken.new("PEGUSD:BUSD Relay Token", "PEGUSD:BUSD", 18, InstanceRegistryContract.address);
     const ConverterContract = await BancorConverter.new(RelayTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), ConverterContract.address);
     
+    const defaultAddresses = [
+        PegLogicContract.address, 
+        LogicActionsContract.address, 
+        AuctionActionsContract.address, 
+        VaultAContract.address, 
+        VaultBContract.address,
+        ConverterContract.address
+    ];
+    const MultiSigWalletContract = await MultiSigWallet.new(owners, owners.length);
+    const PegSettingsContract = await PegSettings.new(defaultAddresses);
+    await PegSettingsContract.setOwner(MultiSigWalletContract.address);
+    await InstanceRegistryContract.registerAddress(await ContractIdsContract.PEG_SETTINGS.call(), PegSettingsContract.address);
+
     return {
         Owners: owners,
         DefaultAuthorization: defaultAddresses,
