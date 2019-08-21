@@ -27,6 +27,10 @@ contract("auction vault A test", (accounts) => {
                 amount: 20,
                 address: accounts[4]
             },
+            {
+                amount: 20,
+                address: accounts[5]
+            },
         ];
     });
 
@@ -75,6 +79,8 @@ contract("auction vault A test", (accounts) => {
         assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[1].address)) / 1e18);
         await StableTokenContract.issue(bidders[2].address, 100 * 1e18);
         assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[2].address)) / 1e18);
+        await StableTokenContract.issue(bidders[3].address, 100 * 1e18);
+        assert.equal(100, Number(await StableTokenContract.balanceOf.call(bidders[3].address)) / 1e18);
     });
 
     it("should throw error when vault is not yet for liquidation", async () => {
@@ -262,6 +268,18 @@ contract("auction vault A test", (accounts) => {
         assert.equal(newAvailableCredit, (totalCredit * 0.05), "wrong newAvailableCredit");
         assert.equal(amountBorrowed, Number(await PegLogicContract.actualDebt.call(VaultContract.address, vault)), 'actual debt is not equal to what is borrowed');
         assert.equal(amountBorrowed, Number(await VaultContract.totalBorrowed.call(vault)), 'vault total borrowed is not equal to what is borrowed');
+    });
+
+    it("should throw error when calling bid after auction ends", async () => {
+        try {
+            let bidAmount = bidders[3].amount;
+            let bidder = bidders[3].address;
+            await StableTokenContract.approve(AuctionContract.address, actualDebt, {from:bidder});
+            await AuctionContract.bid(bidAmount * 1e18, 0, {from: bidder});
+            assert(false, "didn't throw");
+        } catch (error) {
+            return utils.ensureException(error);
+        }
     });
 
 })

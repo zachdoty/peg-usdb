@@ -33,7 +33,7 @@ contract Auction is ContractIds {
         _;
     }
 
-    function validateBid(uint256 _amount, uint256 _amountRelay) internal view {
+    function validateBid(uint256 _amount, uint256 _amountRelay) internal {
         if(auctionEndTime > 0)
             require(now <= auctionEndTime, "Auction has already ended");
         else {
