@@ -320,7 +320,7 @@ bid(uint256 _amount, uint256 _amountRelay) public
 // _amount refers to the amount of collateral that will be returned to the borrower.
 // _amountRelay refers to the number of relay tokens the bidder wishes in addition to the collateral
 // One or both values must be zero in order to be valid
-// Every bid must be greater in value than the previous bid
+// Every bid must be greater in value than the previous bid (validateBid)
 ```
 
 ```typescript
