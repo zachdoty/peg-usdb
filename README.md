@@ -1,3 +1,6 @@
+# BUSD Bug Bounty
+* [BUSD Bug Bounty Details](https://peg.network/bounty.html)
+
 # PEG Documentation
 
 ## PegLogic.sol
