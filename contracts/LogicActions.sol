@@ -42,7 +42,8 @@ contract LogicActions is Helpers {
             _vault.rawTotalBalance().minus(_vault.balanceActualToRaw(_amount))
         );
         _vault.transferERC20Token(ipegLogic.getCollateralToken(_vault), _to, _amount);
-        ipegLogic.adjustCollateralBorrowingRate();
+        if(_vault.rawTotalBalance() > 0)
+            ipegLogic.adjustCollateralBorrowingRate();
         _vault.emitWithdraw(msg.sender, _to, _amount);
     }
 
