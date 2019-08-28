@@ -1,3 +1,6 @@
+# BUSD Bug Bounty
+* [BUSD Bug Bounty Details](https://peg.network/bounty.html)
+
 # PEG Documentation
 
 ## PegLogic.sol
@@ -306,10 +309,21 @@ modifier authOnly()
 ```
 
 ```typescript
-bid(uint256 _amount) public
-// Places a bid on the current auction, accepts an actual value
+validateBid(uint256 _amount, uint256 _amountRelay) internal
+// Validates bid to ensure that:
+// 1. Bid is within auction time
+// 2. Bid is not both minting relay tokens and refunding collateral at the same time
+// 3. New bid is greater than previous bids
+// 4. Bid does not attempt to return more than 100% of the collateral to the initial borrower
+```
+
+```typescript
+bid(uint256 _amount, uint256 _amountRelay) public
+// Places a bid on the current auction, accepts an actual value for bid and relay amounts.
 // _amount refers to the amount of collateral that will be returned to the borrower.
-// The remainder will be received by the winning bidder.
+// _amountRelay refers to the number of relay tokens the bidder wishes in addition to the collateral
+// One or both values must be zero in order to be valid
+// Every bid must be greater in value than the previous bid (validateBid)
 ```
 
 ```typescript

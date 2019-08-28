@@ -75,7 +75,7 @@ contract Auction is ContractIds {
         ended = true;
     }
 
-    function hasEnded() public view returns (bool) {
+    function canEnd() public view returns (bool) {
         return auctionEndTime > 0 && now >= auctionEndTime;
     }
 
