@@ -26,4 +26,4 @@ module.exports = {
             network_id: 1 // Ethereum public network
         }
     }
-};
+}; 

@@ -50,4 +50,4 @@ if (fatal) {
         // fs.writeFileSync('../dapp/imports/startup/client/contracts/' + contractFileName + '.json', `{"contractName": "${contractFileName}", "abi": ${output.contracts[contractName].interface}}`);        
         fs.writeFileSync('./abi/' + contractFileName + '.json', `{"contractName": "${contractFileName}", "abi": ${output.contracts[contractName].interface}}`);        
     }
-}
+} 
