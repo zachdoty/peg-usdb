@@ -31,8 +31,8 @@ const createContracts = async accounts => {
     await RegistryContract.registerAddress(await ContractIdsContract.COLLATERAL_TOKEN.call(), CollateralTokenContract.address);
     await RegistryContract.registerAddress(await ContractIdsContract.PEGUSD_TOKEN.call(), PEGUSDTokenContract.address);
     
-    // BUSD Instance
-    const StableTokenContract = await SmartToken.new("Bancor USD", "BUSD", 18, InstanceRegistryContract.address);
+    // USDB Instance
+    const StableTokenContract = await SmartToken.new("Bancor USD", "USDB", 18, InstanceRegistryContract.address);
     const VaultAContract = await Vault.new(InstanceRegistryContract.address);
     const VaultBContract = await Vault.new(InstanceRegistryContract.address);
     const PegLogicContract = await PegLogic.new(InstanceRegistryContract.address);
@@ -51,7 +51,7 @@ const createContracts = async accounts => {
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.AUCTION_ACTIONS.call(), AuctionActionsContract.address);
 
     // RELAY TOKEN
-    const RelayTokenContract = await SmartToken.new("PEGUSD:BUSD Relay Token", "PEGUSD:BUSD", 18, InstanceRegistryContract.address);
+    const RelayTokenContract = await SmartToken.new("PEGUSD:USDB Relay Token", "PEGUSD:USDB", 18, InstanceRegistryContract.address);
     const ConverterContract = await BancorConverter.new(RelayTokenContract.address);
     await InstanceRegistryContract.registerAddress(await ContractIdsContract.FEE_RECIPIENT.call(), ConverterContract.address);
     
@@ -78,7 +78,7 @@ const createContracts = async accounts => {
         RelayTokenContract: RelayTokenContract,
         ConverterContract: ConverterContract,
         MultiSigWalletContract: MultiSigWalletContract,
-        BUSD_Contracts: {
+        USDB_Contracts: {
             vaultA: VaultAContract,
             vaultB: VaultBContract,
             oracle: OracleContract,
@@ -88,7 +88,7 @@ const createContracts = async accounts => {
             pegSettings: PegSettingsContract,
             stableToken: StableTokenContract
         },
-        BUSD_InstanceRegistryContract: InstanceRegistryContract
+        USDB_InstanceRegistryContract: InstanceRegistryContract
     }
 
 };

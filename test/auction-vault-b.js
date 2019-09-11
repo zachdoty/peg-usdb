@@ -4,20 +4,20 @@ const Auction = artifacts.require("Auction");
 contract("auction vault B test", (accounts) => {
 
     const BNT_toBorrow = 1000;
-    const BUSD_toBorrow = 500;
+    const USDB_toBorrow = 500;
 
     before(async () => {
         contracts = await utils.contracts(accounts);
         
-        PegLogicContract = contracts.BUSD_Contracts.pegLogic;
-        LogicActionsContract = contracts.BUSD_Contracts.logicActions;
-        AuctionActionsContract = contracts.BUSD_Contracts.auctionActions;
-        VaultAContract = contracts.BUSD_Contracts.vaultA;
-        VaultBContract = contracts.BUSD_Contracts.vaultB;
-        StableTokenContract = contracts.BUSD_Contracts.stableToken;
-        OracleContract = contracts.BUSD_Contracts.oracle;
+        PegLogicContract = contracts.USDB_Contracts.pegLogic;
+        LogicActionsContract = contracts.USDB_Contracts.logicActions;
+        AuctionActionsContract = contracts.USDB_Contracts.auctionActions;
+        VaultAContract = contracts.USDB_Contracts.vaultA;
+        VaultBContract = contracts.USDB_Contracts.vaultB;
+        StableTokenContract = contracts.USDB_Contracts.stableToken;
+        OracleContract = contracts.USDB_Contracts.oracle;
         CollateralTokenContract = contracts.CollateralTokenContract;
-        DebtTokenContract = contracts.BUSD_Contracts.stableToken;
+        DebtTokenContract = contracts.USDB_Contracts.stableToken;
 
         admin = accounts[0];
         borrowerVaultA = accounts[1];
@@ -61,21 +61,21 @@ contract("auction vault B test", (accounts) => {
     it("should create new vault && fund collateral tokens to vault B", async () => {
         let balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect initial user collateral token balance');
-        await DebtTokenContract.issue(borrowerVaultB, BUSD_toBorrow * 1e18);
+        await DebtTokenContract.issue(borrowerVaultB, USDB_toBorrow * 1e18);
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
-        assert.equal(balance / 1e18, BUSD_toBorrow, 'Incorrect user collateral token balance');
+        assert.equal(balance / 1e18, USDB_toBorrow, 'Incorrect user collateral token balance');
 
         await DebtTokenContract.approve(LogicActionsContract.address, 0, {from: borrowerVaultB});
-        await DebtTokenContract.approve(LogicActionsContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await DebtTokenContract.approve(LogicActionsContract.address, USDB_toBorrow * 1e18, {from: borrowerVaultB});
 
-        await LogicActionsContract.deposit(VaultBContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await LogicActionsContract.deposit(VaultBContract.address, USDB_toBorrow * 1e18, {from: borrowerVaultB});
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect user collateral token balance after deposit');
 
         assert.equal(await VaultBContract.vaultExists.call(borrowerVaultB), true, 'vault does not exist');
         assert.equal((await VaultBContract.getVaults.call()).length, 1, 'Incorrect vaults count');
-        assert.equal(Number(await DebtTokenContract.balanceOf.call(VaultBContract.address)) / 1e18, BUSD_toBorrow, 'Incorrect vault contract collateral token balance');
-        assert.equal(Number(await VaultBContract.rawBalanceOf.call(borrowerVaultB)) / 1e18, BUSD_toBorrow, 'Incorrect vault collateral balance');
+        assert.equal(Number(await DebtTokenContract.balanceOf.call(VaultBContract.address)) / 1e18, USDB_toBorrow, 'Incorrect vault contract collateral token balance');
+        assert.equal(Number(await VaultBContract.rawBalanceOf.call(borrowerVaultB)) / 1e18, USDB_toBorrow, 'Incorrect vault collateral balance');
     });
 
     it("should borrow debt token from vault B", async () => {
@@ -191,12 +191,12 @@ contract("auction vault B test", (accounts) => {
 
     it("should throw error when vault is on auction and tries to borrow", async () => {
         assert.equal(await PegLogicContract.isInsolvent.call(VaultBContract.address, borrowerVaultB), false, 'vault is not for liquidation so far');
-        await DebtTokenContract.issue(borrowerVaultB, BUSD_toBorrow * 1e18);
+        await DebtTokenContract.issue(borrowerVaultB, USDB_toBorrow * 1e18);
         
         await DebtTokenContract.approve(LogicActionsContract.address, 0, {from: borrowerVaultB});
-        await DebtTokenContract.approve(LogicActionsContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await DebtTokenContract.approve(LogicActionsContract.address, USDB_toBorrow * 1e18, {from: borrowerVaultB});
 
-        await LogicActionsContract.deposit(VaultBContract.address, BUSD_toBorrow * 1e18, {from: borrowerVaultB});
+        await LogicActionsContract.deposit(VaultBContract.address, USDB_toBorrow * 1e18, {from: borrowerVaultB});
         balance = Number(await DebtTokenContract.balanceOf.call(borrowerVaultB));
         assert.equal(balance, 0, 'Incorrect user debt token balance after deposit');
 

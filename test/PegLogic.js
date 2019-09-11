@@ -4,9 +4,9 @@ contract("Peg Logic test", (accounts) => {
 
     before(async () => {
         contracts = await utils.contracts(accounts);
-        PegLogicContract = contracts.BUSD_Contracts.pegLogic;
-        LogicActionsContract = contracts.BUSD_Contracts.logicActions;
-        VaultContract = contracts.BUSD_Contracts.vaultA;
+        PegLogicContract = contracts.USDB_Contracts.pegLogic;
+        LogicActionsContract = contracts.USDB_Contracts.logicActions;
+        VaultContract = contracts.USDB_Contracts.vaultA;
         admin = accounts[0];
         vault = accounts[1];
     });

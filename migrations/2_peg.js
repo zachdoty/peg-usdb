@@ -15,7 +15,7 @@ module.exports = (deployer, network, accounts) => {
         //         return deployer.deploy(PEGUSDContract, 'PEG Network Token', 'PEG:USD', 18);
         //     })
         //     .then(() => {
-        //         return deployer.deploy(StableTokenContract, 'Bancor USD Token', 'BUSD', 18, InstanceRegistryContract.address);
+        //         return deployer.deploy(StableTokenContract, 'Bancor USD Token', 'USDB', 18, InstanceRegistryContract.address);
         //     })
         //     .then(() => {
         //         return deployer.deploy(InstanceRegistryContract);
@@ -40,10 +40,10 @@ module.exports = (deployer, network, accounts) => {
         //     })
 
        
-        // await deployer.deploy(CollateralTokenContract, 'Bancor USD Token', 'BUSD', 18, InstanceRegistryContract.address);
-        // await deployer.deploy(PEGUSDContract, 'Bancor USD Token', 'BUSD', 18, InstanceRegistryContract.address);        
+        // await deployer.deploy(CollateralTokenContract, 'Bancor USD Token', 'USDB', 18, InstanceRegistryContract.address);
+        // await deployer.deploy(PEGUSDContract, 'Bancor USD Token', 'USDB', 18, InstanceRegistryContract.address);        
         // await deployer.deploy(InstanceRegistryContract);
-        // await deployer.deploy(StableTokenContract, 'Bancor USD Token', 'BUSD', 18, InstanceRegistryContract.address);
+        // await deployer.deploy(StableTokenContract, 'Bancor USD Token', 'USDB', 18, InstanceRegistryContract.address);
         // await deployer.deploy(VaultAContract, InstanceRegistryContract.address);
         // await deployer.deploy(VaultBContract, InstanceRegistryContract.address);
         // await deployer.deploy(PegSettingsContract, InstanceRegistryContract.address);

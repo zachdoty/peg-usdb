@@ -73,7 +73,7 @@ const contracts = [
         contract: "StableToken",
         arguments: [
             "Bancor USD Token",
-            "BUSD",
+            "USDB",
             18,
             () => {
                 return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;
@@ -85,8 +85,8 @@ const contracts = [
     {
         contract: "StableToken",
         arguments: [
-            "PEGUSD-BUSD Relay Token",
-            "PEGUSD:BUSD",
+            "PEGUSD-USDB Relay Token",
+            "PEGUSD:USDB",
             18,
             () => {
                 return deployedContracts["InstanceRegistryContract"] ? deployedContracts["InstanceRegistryContract"].options.address : null;

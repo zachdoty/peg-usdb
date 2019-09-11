@@ -4,7 +4,7 @@ contract("PegSettings test", (accounts) => {
 
     before(async () => {
         contracts = await utils.contracts(accounts);
-        PegSettings = contracts.BUSD_Contracts.pegSettings;
+        PegSettings = contracts.USDB_Contracts.pegSettings;
         MultiSigWallet = contracts.MultiSigWalletContract;
     });
 

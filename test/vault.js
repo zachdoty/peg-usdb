@@ -6,12 +6,12 @@ contract("Vault Basic test", (accounts) => {
     before(async () => {
         contracts = await utils.contracts(accounts);
         VaultAContract = await Vault.at(
-            await contracts.BUSD_InstanceRegistryContract.addressOf(
+            await contracts.USDB_InstanceRegistryContract.addressOf(
                 await contracts.ContractIdsContract.VAULT_A.call()
             )
         )
         VaultBContract = await Vault.at(
-            await contracts.BUSD_InstanceRegistryContract.addressOf(
+            await contracts.USDB_InstanceRegistryContract.addressOf(
                 await contracts.ContractIdsContract.VAULT_B.call()
             )
         )

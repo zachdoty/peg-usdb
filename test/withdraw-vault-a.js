@@ -4,10 +4,10 @@ contract("repay vault A test", (accounts) => {
 
     before(async () => {
         contracts = await utils.contracts(accounts);
-        PegLogicContract = contracts.BUSD_Contracts.pegLogic;
-        LogicActionsContract = contracts.BUSD_Contracts.logicActions;
-        VaultContract = contracts.BUSD_Contracts.vaultA;
-        StableTokenContract = contracts.BUSD_Contracts.stableToken;
+        PegLogicContract = contracts.USDB_Contracts.pegLogic;
+        LogicActionsContract = contracts.USDB_Contracts.logicActions;
+        VaultContract = contracts.USDB_Contracts.vaultA;
+        StableTokenContract = contracts.USDB_Contracts.stableToken;
         admin = accounts[0];
         vault = accounts[1];
         user = accounts[1];

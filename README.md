@@ -1,5 +1,5 @@
 # System Architecture
-[Two Vault Peg Stabletoken System](https://github.com/zachdoty/peg-busd/wiki/Two-Vault-Peg-Stabletoken-System)
+[Two Vault Peg Stabletoken System](https://github.com/zachdoty/peg-usdb/wiki/Two-Vault-Peg-Stabletoken-System)
 
 # USDB Bug Bounty
 [USDB Bug Bounty Details](https://peg.network/bounty.html)
